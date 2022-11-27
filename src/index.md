@@ -2,15 +2,12 @@
 layout: default
 ---
 
-I'm a software engineer living in Lawrence, Kansas. My pronouns are [she/her](https://pronoun.is/she).
+👋🏻 Nice to meet you! My name is Emily, and my pronouns are [she/her](https://pronoun.is/she).
 
-## What I'm up to
+I'm a software developer living in Lawrence, Kansas with my [husband](https://jonsamp.dev) and our two pets.
 
-I am currently a Senior Developer at [Shopify](https://shopify.engineering/), where I work on [Sorbet](https://sorbet.org)
-and related tools to improve the Ruby developer experience.
+By day, I'm a Senior Developer at [Shopify](https://shopify.engineering), where I work with the Ruby & Rails Infrastructure team on [Sorbet](https://sorbet.org/) and other tools to improve the Ruby developer experience.
 
-I'm also co-organizing [WNB.rb](https://wnb-rb.dev/), a virtual Ruby community for women and nonbinary people.
+I am also an organizer of [WNB.rb](https://wnb-rb.dev), a community for women and non-binary Rubyists.
 
-In my spare time, I love to write and read speculative fiction. You'll often find me hanging out with my [partner](https://jonsamp.dev) and our pets.
-
-(This is a [now page](https://nownownow.com/about). I can't take credit for the idea, but I think it's pretty cool!)
+In my spare time, I enjoy [reading](https://app.thestorygraph.com/profile/emilysamp) fantasy novels, writing, running, and playing music.

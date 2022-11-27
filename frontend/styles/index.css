@@ -3,6 +3,8 @@
   --body-color: #23314b;
   --heading-color: 23314b;
   --action-color: #DF7785;
+  --header-color: #c35866;
+  --light-action-color: #f1c1c7;
 }
 
 body {
@@ -24,10 +26,6 @@ a {
   text-decoration-color: #efb96e;
 }
 
-p {
-  max-width: 43rem;
-}
-
 h1 {
   margin: 1rem 0 1rem;
   font-weight: 900;
@@ -37,21 +35,16 @@ h1 {
 }
 
 body > header {
-  margin: 5rem auto 1rem auto;
-  padding: 2rem 3rem;
+  margin: 5rem auto 0 auto;
+  padding: 3rem 3rem 2rem 3rem;
   text-align: center;
+  background: var(--header-color);
   color: white;
   text-transform: uppercase;
   font-weight: 600;
   font-size: 40px;
-  background: rgba(255, 255, 255, .2);
   max-width: 50rem;
-}
-
-body > header img {
-  display: inline-block;
-  width: 400px;
-  max-width: 100%;
+  border-radius: 3px 3px 0 0;
 }
 
 body > header > nav ul {
@@ -67,15 +60,18 @@ body > header > nav ul {
 
 body > header > nav a {
   text-decoration: none;
+  color: var(--light-action-color);
+}
+
+body > header > nav a:hover {
+  color: white;
 }
 
 main {
-  margin: 2rem auto 4rem;
+  margin: 0 auto;
   max-width: 50rem;
   padding: 3rem;
   background: white;
-  box-shadow: 2px 3px 3px #ddd;
-  border-radius: 3px;
 
   @media (max-width: 500px) {
     padding: 16px 16px 50px;
@@ -95,8 +91,25 @@ main > h3 {
 
 footer {
   text-align: center;
-  margin-bottom: 4rem;
+  margin: 0 auto 4rem auto;
   font-size: 1em;
+  background: var(--header-color);
+  border-radius: 0 0 3px 3px;
+  padding: 1rem 3rem;
+  max-width: 50rem;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+footer > a {
+  color: var(--light-action-color);
+  text-decoration: none;
+}
+
+footer > a:hover {
+  color: white;
+  text-decoration: none;
 }
 
 hr {
