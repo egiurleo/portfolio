@@ -1,12 +1,13 @@
 :root {
-  --body-background: #f2f2f2;
-  --body-color: #444;
-  --heading-color: black;
-  --action-color: #d64045;
+  --body-background: #23314b;
+  --body-color: #23314b;
+  --heading-color: 23314b;
+  --action-color: #DF7785;
 }
 
 body {
-  background: var(--body-background);
+  background-image: url("../../src/images/AmeliaNavy.jpg");
+  background-size: 85rem;
   color: var(--body-color);
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
@@ -19,12 +20,12 @@ body {
 a {
   color: var(--action-color);
   text-decoration: underline;
-  text-decoration-color: #ffb088;
+  text-decoration-color: #efb96e;
 }
 
 h1 {
-  margin: 1rem 0 3rem;
-  text-align: center;
+  margin: 1rem 0 1rem;
+  /* text-align: center; */
   font-weight: 900;
   font-size: 2.5rem;
   color: var(--heading-color);
@@ -34,6 +35,10 @@ h1 {
 body > header {
   margin: 1rem;
   text-align: center;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 40px;
 }
 
 body > header img {
@@ -60,7 +65,7 @@ body > nav a {
 main {
   margin: 2rem auto 4rem;
   max-width: 65rem;
-  min-height: calc(100vh - 200px);
+  /* min-height: calc(100vh - 200px); */
   padding: 25px 25px 50px;
   background: white;
   box-shadow: 2px 3px 3px #ddd;

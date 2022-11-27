@@ -1,12 +1,9 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-
-layout: default
+title: 👋🏻 Hi, I'm Emily
+layout: page
 ---
 
-## Who I am
-
-Hi, I'm Emily! 👋🏻 I'm a software engineer living in Lawrence, Kansas. My pronouns are [she/her](https://pronoun.is/she).
+I'm a software engineer living in Lawrence, Kansas. My pronouns are [she/her](https://pronoun.is/she).
 
 ## What I'm up to
 
