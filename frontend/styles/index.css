@@ -8,6 +8,7 @@
 body {
   background-image: url("../../src/images/AmeliaNavy.jpg");
   background-size: 85rem;
+  background-position-y: -5rem;
   color: var(--body-color);
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
@@ -23,9 +24,12 @@ a {
   text-decoration-color: #efb96e;
 }
 
+p {
+  max-width: 43rem;
+}
+
 h1 {
   margin: 1rem 0 1rem;
-  /* text-align: center; */
   font-weight: 900;
   font-size: 2.5rem;
   color: var(--heading-color);
@@ -33,12 +37,15 @@ h1 {
 }
 
 body > header {
-  margin: 1rem;
+  margin: 5rem auto 1rem auto;
+  padding: 2rem 3rem;
   text-align: center;
   color: white;
   text-transform: uppercase;
   font-weight: 600;
   font-size: 40px;
+  background: rgba(255, 255, 255, .2);
+  max-width: 50rem;
 }
 
 body > header img {
@@ -47,8 +54,8 @@ body > header img {
   max-width: 100%;
 }
 
-body > nav ul {
-  margin: 2rem 0;
+body > header > nav ul {
+  margin: 1rem 0;
   padding: 0;
   list-style-type: none;
   display: flex;
@@ -58,15 +65,14 @@ body > nav ul {
   font-weight: bold;
 }
 
-body > nav a {
+body > header > nav a {
   text-decoration: none;
 }
 
 main {
   margin: 2rem auto 4rem;
-  max-width: 65rem;
-  /* min-height: calc(100vh - 200px); */
-  padding: 25px 25px 50px;
+  max-width: 50rem;
+  padding: 3rem;
   background: white;
   box-shadow: 2px 3px 3px #ddd;
   border-radius: 3px;
@@ -74,6 +80,17 @@ main {
   @media (max-width: 500px) {
     padding: 16px 16px 50px;
   }
+}
+
+main p.subtitle {
+  color: rgb(161, 161, 161);
+  font-size: 14px;
+  margin: 0;
+  margin-top: -1rem;
+}
+
+main > h3 {
+  margin-top: 3rem;
 }
 
 footer {

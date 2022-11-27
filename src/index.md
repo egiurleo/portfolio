@@ -1,6 +1,5 @@
 ---
-title: 👋🏻 Hi, I'm Emily
-layout: page
+layout: default
 ---
 
 I'm a software engineer living in Lawrence, Kansas. My pronouns are [she/her](https://pronoun.is/she).
