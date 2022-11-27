@@ -5,6 +5,9 @@
   --action-color: #DF7785;
   --header-color: #c35866;
   --light-action-color: #f1c1c7;
+  --gray: rgb(161, 161, 161);
+  --yellow: #efb96e;
+  --light-yellow: #fdf2d7;
 }
 
 body {
@@ -23,7 +26,7 @@ body {
 a {
   color: var(--action-color);
   text-decoration: underline;
-  text-decoration-color: #efb96e;
+  text-decoration-color: var(--yellow);
 }
 
 h1 {
@@ -79,7 +82,7 @@ main {
 }
 
 main p.subtitle {
-  color: rgb(161, 161, 161);
+  color: var(--gray);
   font-size: 14px;
   margin: 0;
   margin-top: -1rem;
@@ -116,4 +119,15 @@ hr {
   border: none;
   border-top: 2px dotted #bbb;
   margin: 3rem 0;
+}
+
+main > p.post-date {
+  margin-bottom: 2rem;
+  color: var(--gray);
+}
+
+main > p.note {
+  background: var(--light-yellow);
+  padding: 1rem;
+  border-radius: 3px;
 }
