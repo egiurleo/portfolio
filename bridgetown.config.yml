@@ -23,7 +23,12 @@ permalink: pretty
 template_engine: erb
 collections:
   talks:
-    output: true
+    sort_by: date
+    sort_direction: descending
+  podcasts:
+    sort_by: date
+    sort_direction: descending
+  projects:
     sort_by: date
     sort_direction: descending
 # Other options you might want to investigate:
