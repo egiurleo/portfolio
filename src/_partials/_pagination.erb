@@ -1,0 +1,7 @@
+<% if paginator.total_pages > 1 %>
+  <div class="pagination">
+    <a class="<%= paginator.previous_page ? "" : "disabled" %>" href="<%= paginator.previous_page_path %>">Previous</a>
+    •
+    <a class="<%= paginator.next_page ? "" : "disabled" %>" href="<%= paginator.next_page_path %>">Next</a>
+  </div>
+<% end %>

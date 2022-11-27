@@ -1,9 +1,11 @@
 ---
 layout: page
+paginate:
+  collection: posts
 title: Blog
 ---
 
-<% collections.posts.resources.each do |post| %>
+<% paginator.resources.each do |post| %>
 
   <h3>
     <a href="<%= post.relative_url %>"><%= post.data.title %></a>
@@ -15,3 +17,5 @@ title: Blog
 
 <%= post.data.summary %>
 <% end %>
+
+<%= render "pagination", metadata: site.metadata %>

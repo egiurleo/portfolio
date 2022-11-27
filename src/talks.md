@@ -1,9 +1,11 @@
 ---
 layout: page
+paginate:
+  collection: talks
 title: Talks
 ---
 
-<% collections.talks.resources.each do |talk| %>
+<% paginator.resources.each do |talk| %>
 
   <h3>
     <a href="<%= talk.data.url %>"><%= talk.data.title %></a>
@@ -15,3 +17,5 @@ title: Talks
 
 <%= talk.data.summary %>
 <% end %>
+
+<%= render "pagination", metadata: site.metadata %>

@@ -1,9 +1,11 @@
 ---
 layout: page
+paginate:
+  collection: projects
 title: Projects
 ---
 
-<% collections.projects.resources.each do |project| %>
+<% paginator.resources.each do |project| %>
 
   <h3>
     <a href="<%= project.data.url %>"><%= project.data.title %></a>
@@ -19,3 +21,5 @@ title: Projects
 
 <%= project.data.summary %>
 <% end %>
+
+<%= render "pagination", metadata: site.metadata %>

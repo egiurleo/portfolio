@@ -1,9 +1,11 @@
 ---
 layout: page
+paginate:
+  collection: podcasts
 title: Podcasts
 ---
 
-<% collections.podcasts.resources.each do |podcast| %>
+<% paginator.resources.each do |podcast| %>
 
   <h3>
     <a href="<%= podcast.data.url %>"><%= podcast.data.podcast %></a> <%= podcast.data.episode %>: <%= podcast.data.title %>
@@ -14,3 +16,5 @@ title: Podcasts
   </p>
 
 <% end %>
+
+<%= render "pagination", metadata: site.metadata %>

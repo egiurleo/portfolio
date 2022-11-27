@@ -29,6 +29,12 @@ a {
   text-decoration-color: var(--yellow);
 }
 
+a.disabled {
+  color: var(--gray);
+  pointer-events: none;
+  text-decoration: none;
+}
+
 h1 {
   margin: 1rem 0 1rem;
   font-weight: 900;
@@ -130,4 +136,9 @@ main > p.note {
   background: var(--light-yellow);
   padding: 1rem;
   border-radius: 3px;
+}
+
+main > .pagination {
+  margin-top: 2rem;
+  text-align: center;
 }
