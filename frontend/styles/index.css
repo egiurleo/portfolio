@@ -15,7 +15,7 @@ body {
   background-size: 85rem;
   background-position-y: -5rem;
   color: var(--body-color);
-  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen",
+  font-family: "Source Sans Pro", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     "Helvetica", "Arial", sans-serif;
   margin: 0 8px;
@@ -42,6 +42,7 @@ a.disabled {
 }
 
 h1 {
+  font-family: "Josefin Sans", "sans-serif";
   margin: 1rem 0 1rem;
   font-weight: 900;
   font-size: 2.5rem;
@@ -81,6 +82,10 @@ body > header > nav a {
 
 body > header > nav a:hover {
   color: white;
+}
+
+body > header .title {
+  font-family: "Josefin Sans", "sans-serif";
 }
 
 main {
