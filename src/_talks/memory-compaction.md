@@ -2,6 +2,7 @@
 layout: talk
 title: The Bug that Forced Me to Understand Memory Compaction
 url: https://www.youtube.com/watch?v=GlpZPv1bp4g
+slides: https://docs.google.com/presentation/d/1VmJyyM9dY5clrlCj8hkzkQY8DYZYM-HGYIBl5JAhUhU/edit#slide=id.p
 summary: |
   Did you know that Ruby 2.7 introduces a new method for manual memory compaction?
 

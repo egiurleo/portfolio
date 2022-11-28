@@ -12,7 +12,10 @@ title: Talks
   </h3>
 
   <p class="subtitle">
-    <%= talk.data.conference %> • <%= talk.data.date.strftime("%B %Y") %> • <%= talk.data.location %>
+    <%= talk.data.conference %> • <%= talk.data.date.strftime("%B %Y") %> • <%= talk.data.location %> •
+    <a href="<%= talk.data.slides %>">
+      &#8599; slides
+    </a>
   </p>
 
 <%= talk.data.summary %>

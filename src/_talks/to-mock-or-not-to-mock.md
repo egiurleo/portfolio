@@ -2,6 +2,7 @@
 layout: talk
 title: "To Mock, or Not to Mock?"
 url: https://www.youtube.com/watch?v=fm_FxuRfcWE
+slides: https://docs.google.com/presentation/d/1il8WKCqY-rsoz-Dbr3hl7MabRFZ3jfc0-xikb4PRGBQ/edit?usp=drive_web&ouid=101939856070811570152
 summary: |
   Mocking: it’s one of the most controversial topics in the testing world. Using mocks, we can more easily test parts of our applications that might otherwise go untested, but mocks can also be misused, resulting in tests that are brittle or downright self-referential.
 
