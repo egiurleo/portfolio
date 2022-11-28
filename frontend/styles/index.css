@@ -23,6 +23,12 @@ body {
   line-height: 1.75;
 }
 
+@media (max-width: 500px) {
+  body {
+    background-size: 30rem;
+  }
+}
+
 a {
   color: var(--action-color);
   text-decoration: underline;
@@ -65,6 +71,7 @@ body > header > nav ul {
   gap: 1.5rem;
   font-size: 1.3rem;
   font-weight: bold;
+  flex-wrap: wrap;
 }
 
 body > header > nav a {
