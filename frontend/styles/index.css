@@ -11,6 +11,7 @@
 }
 
 body {
+  background: var(--body-color);
   background-image: url("../../src/images/AmeliaNavy.jpg");
   background-size: 85rem;
   background-position-y: -5rem;
