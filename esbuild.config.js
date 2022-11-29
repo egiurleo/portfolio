@@ -27,7 +27,7 @@ const outputFolder = "output";
 // const esbuildOptions = { publicPath: "/my_subfolder/_bridgetown/static" }
 // ```
 const esbuildOptions = {
-  publicPath: "/portfolio/_bridgetown/static",
+  publicPath: "/_bridgetown/static",
 };
 
 build(outputFolder, esbuildOptions);
