@@ -155,3 +155,7 @@ main > .pagination {
   margin-top: 2rem;
   text-align: center;
 }
+
+main pre.highlight {
+  overflow-x: auto;
+}
