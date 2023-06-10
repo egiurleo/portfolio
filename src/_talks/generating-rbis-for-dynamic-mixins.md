@@ -1,8 +1,8 @@
 ---
 layout: talk
 title: Generating RBIs for dynamic mixins with Sorbet and Tapioca
-url: https://rubykaigi.org/2023/presentations/egiurleo.html#day1
-slides: https://drive.google.com/file/d/1W4bmAePVOSbUVe-JUzVcGMbro1HBcWhO/view?usp=sharing
+url: https://www.youtube.com/watch?v=UpbVZ4Gqk3c
+slides: https://drive.google.com/drive/folders/1PzSj_wTHVIrZNC80IyZzuma85sVIiWTz?usp=sharing
 summary: |
   Last year, Tapioca became the official tool for generating RBI files for Sorbet. Using Tapioca, developers can quickly generate accurate RBIs for external Ruby gems, allowing them to use Sorbet in their projects even if most gems have not yet added type signatures.
 
