@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Talks | Emily Samp</title>
+
+<meta name="description" content="The website of Emily Samp, a software developer and community organizer." />
+
+<link rel="stylesheet" href="/_bridgetown/static/index.XPTEAHIP.css" />
+<script src="/_bridgetown/static/index.RARUY3ZT.js" defer></script>
+<script type="module">let lastmod = 0
+function startReloadConnection() {
+  const evtSource = new EventSource("/_bridgetown/live_reload")
+  evtSource.onmessage = event => {
+    if (document.querySelector("#bridgetown-build-error")) document.querySelector("#bridgetown-build-error").close()
+    if (event.data == "reloaded!") {
+      location.reload()
+    } else {
+      const newmod = Number(event.data)
+      if (lastmod > 0 && newmod > 0 && lastmod < newmod) {
+        location.reload()
+      } else {
+        lastmod = newmod
+      }
+    }
+  }
+  evtSource.addEventListener("builderror", event => {
+    let dialog = document.querySelector("#bridgetown-build-error")
+    if (!dialog) {
+      dialog = document.createElement("dialog")
+      dialog.id = "bridgetown-build-error"
+      dialog.style.borderColor = "red"
+      dialog.style.fontSize = "110%"
+      dialog.innerHTML = `
+        <p style="color:red">There was an error when building the site:</p>
+        <output><pre></pre></output>
+        <p><small>Check your Bridgetown logs for further details.</small></p>
+      `
+      document.body.appendChild(dialog)
+      dialog.showModal()
+    }
+    dialog.querySelector("pre").textContent = JSON.parse(event.data)
+  })
+  evtSource.onerror = event => {
+    if (evtSource.readyState === 2) {
+      // reconnect with new object
+      evtSource.close()
+      console.warn("Live reload: attempting to reconnect in 3 seconds...")
+
+      setTimeout(() => startReloadConnection(), 3000)
+    }
+  }
+}
+setTimeout(() => {
+  startReloadConnection()
+}, 500)
+</script>
+
+ %>
+
+<base target="_blank" rel="noopener noreferrer">
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400,500,600,700&display=swap"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&display=swap"
+/>
+
+  </head>
+  <body class="page ">
+    <header>
+  <span class="title">Emily Samp</span>
+
+  <nav>
+    <ul>
+      <li><a href="/" target="_self">Home</a></li>
+      <li><a href="/blog" target="_self">Blog</a></li>
+      <li><a href="/talks" target="_self">Talks</a></li>
+      <li><a href="/podcasts" target="_self">Podcasts</a></li>
+      <li><a href="/projects" target="_self">Projects</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+    <main>
+      <h1>Talks</h1>
+
+
+<h3>
+    <a href="">Parsing with Prism in Sorbet</a>
+  </h3>
+
+<p class="subtitle">
+    WNB.rb Meetup • October 2024 • Virtual •
+    <a href="https://docs.google.com/presentation/d/1sw_V2_FfqTBfge46hBxLYxYcXKVy_LIp7CkqgphP9Ss/edit#slide=id.p">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>Sorbet is a gradual type checker for Ruby, and like many Ruby developer tools, it has its own parser. This means that every time a change is made to the Ruby language, teams at Stripe and Shopify need to implement those changes in Sorbet’s parser. This process is labor-intensive, slow, and prone to errors. There must be a better way!</p>
+
+<p>Enter, Prism. Prism is a new Ruby parser developed by Shopify. It is written in C and designed to be embedded in other Ruby tooling. In this talk, I’ll describe how I replaced the existing Sorbet parser with Prism, eliminating the toil of maintaining the Sorbet parser and taking one step toward uniting Ruby’s parsing ecosystem.</p>
+
+<h3>
+    <a href="https://www.youtube.com/watch?v=TeMqO3lzfMI">What’s your type? Generating type signatures with Sorbet and Tapioca</a>
+  </h3>
+
+<p class="subtitle">
+    Blue Ridge Ruby 2023 • June 2023 • Asheville, NC •
+    <a href="https://drive.google.com/drive/folders/1Wv0i-WNrMaeInQma1H28i4pwHlb_lMHp?usp=sharing">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>You’ve likely heard of Sorbet, a gradual type checker for Ruby. Using Sorbet, developers can harness the flexibility and creativity of a dynamic language like Ruby, while also benefitting from the safety of typing.</p>
+
+<p>However, in most apps, Sorbet will need some help type checking gem dependencies. This is the purpose of Tapioca, a gem that generates type signatures for other gems so they can be type checked by Sorbet.</p>
+
+<p>But how does Tapioca accomplish this? In this talk, we’ll dive into the tools and techniques used by Tapioca to reflect on Ruby code, and even walk through the process of building a new feature in the Tapioca codebase!</p>
+
+<h3>
+    <a href="https://www.youtube.com/watch?v=UpbVZ4Gqk3c">Generating RBIs for dynamic mixins with Sorbet and Tapioca</a>
+  </h3>
+
+<p class="subtitle">
+    RubyKaigi 2023 • May 2023 • Virtual •
+    <a href="https://drive.google.com/drive/folders/1PzSj_wTHVIrZNC80IyZzuma85sVIiWTz?usp=sharing">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>Last year, Tapioca became the official tool for generating RBI files for Sorbet. Using Tapioca, developers can quickly generate accurate RBIs for external Ruby gems, allowing them to use Sorbet in their projects even if most gems have not yet added type signatures.</p>
+
+<p>In this talk, I’ll explain how I implemented new functionality in Tapioca to help it generate RBIs for dynamic mixins in Ruby gems. Along the way, we’ll learn about how Tapioca uses information about the Ruby object model to generate RBIs, and how this work has impacted the Ruby language as a whole.</p>
+
+<h3>
+    <a href="https://www.youtube.com/watch?v=fm_FxuRfcWE">To Mock, or Not to Mock?</a>
+  </h3>
+
+<p class="subtitle">
+    RubyConf • November 2021 • Denver, CO •
+    <a href="https://docs.google.com/presentation/d/1il8WKCqY-rsoz-Dbr3hl7MabRFZ3jfc0-xikb4PRGBQ/edit?usp=drive_web&amp;ouid=101939856070811570152">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>Mocking: it’s one of the most controversial topics in the testing world. Using mocks, we can more easily test parts of our applications that might otherwise go untested, but mocks can also be misused, resulting in tests that are brittle or downright self-referential.</p>
+
+<p>So… how do we know when to use mocks in our tests? In this talk, we’ll identify three important questions that can help us make that decision. By the end of the talk, you will have a framework in mind to help you answer the question: to mock, or not to mock?</p>
+
+<h3>
+    <a href="https://www.youtube.com/watch?v=oBbsBLtXYRM">Five Errors You Encounter When Upgrading Your Ruby Gems</a>
+  </h3>
+
+<p class="subtitle">
+    WNB.rb Meetup • March 2021 • Virtual •
+    <a href="https://docs.google.com/presentation/d/183ExC_6BEVV9L_E7jFbZDRK3g2S7RNaWuk_ENgnf8C4/edit?usp=sharing">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>Sometimes, upgrading your gems can cause errors in your application. These errors pop up when you’re least expecting them, and they can often be categorized into common groups… kind of like Pokemon! In this talk, we’ll discuss five types of errors you might see while upgrading dependencies, as well as the techniques (or “moves”) we can use to solve them.</p>
+
+<h3>
+    <a href="https://www.youtube.com/watch?v=GlpZPv1bp4g">The Bug that Forced Me to Understand Memory Compaction</a>
+  </h3>
+
+<p class="subtitle">
+    RubyConf • November 2020 • Virtual •
+    <a href="https://docs.google.com/presentation/d/1VmJyyM9dY5clrlCj8hkzkQY8DYZYM-HGYIBl5JAhUhU/edit#slide=id.p">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>Did you know that Ruby 2.7 introduces a new method for manual memory compaction?</p>
+
+<p>Neither did I.</p>
+
+<p>Then a user reported a bug on a gem I maintain, and well…</p>
+
+<p>In this talk, I’ll tell you a story about how one bug forced me to learn all about memory management in Ruby. By the end of this talk, you should understand how memory is allocated on the heap, how Ruby implements garbage collection, and what memory compaction is all about!</p>
+
+<h3>
+    <a href="https://www.youtube.com/watch?v=q473dYrJiMQ">Successfully Onboarding a Junior Engineer in Three Steps</a>
+  </h3>
+
+<p class="subtitle">
+    RailsConf • May 2020 • Virtual •
+    <a href="https://docs.google.com/presentation/d/1IKHnxYJ_z1C2Bk5qgeGzIvq4KCaJWbSv/edit#slide=id.p1">
+      &#8599; slides
+    </a>
+  </p>
+
+<p>How you onboard someone to your team can have lasting effects on their professional success, growth, and happiness, but many teams treat onboarding as an afterthought. In this talk, you will learn how to successfully onboard a junior engineer in three steps, with the goals of building their trust, instilling confidence in their technical abilities, and enabling them to be an autonomous contributor to your team.</p>
+
+
+
+    </main>
+
+    <footer>
+  <a href="https://github.com/egiurleo">GitHub</a> •
+  <a href="https://bsky.app/profile/emilysamp.dev">Bluesky</a> •
+  <a href="mailto:emily.samp@icloud.com">Email</a>
+</footer>
+
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blog | Emily Samp</title>
+
+<meta name="description" content="The website of Emily Samp, a software developer and community organizer." />
+
+<link rel="stylesheet" href="/_bridgetown/static/index.XPTEAHIP.css" />
+<script src="/_bridgetown/static/index.RARUY3ZT.js" defer></script>
+<script type="module">let lastmod = 0
+function startReloadConnection() {
+  const evtSource = new EventSource("/_bridgetown/live_reload")
+  evtSource.onmessage = event => {
+    if (document.querySelector("#bridgetown-build-error")) document.querySelector("#bridgetown-build-error").close()
+    if (event.data == "reloaded!") {
+      location.reload()
+    } else {
+      const newmod = Number(event.data)
+      if (lastmod > 0 && newmod > 0 && lastmod < newmod) {
+        location.reload()
+      } else {
+        lastmod = newmod
+      }
+    }
+  }
+  evtSource.addEventListener("builderror", event => {
+    let dialog = document.querySelector("#bridgetown-build-error")
+    if (!dialog) {
+      dialog = document.createElement("dialog")
+      dialog.id = "bridgetown-build-error"
+      dialog.style.borderColor = "red"
+      dialog.style.fontSize = "110%"
+      dialog.innerHTML = `
+        <p style="color:red">There was an error when building the site:</p>
+        <output><pre></pre></output>
+        <p><small>Check your Bridgetown logs for further details.</small></p>
+      `
+      document.body.appendChild(dialog)
+      dialog.showModal()
+    }
+    dialog.querySelector("pre").textContent = JSON.parse(event.data)
+  })
+  evtSource.onerror = event => {
+    if (evtSource.readyState === 2) {
+      // reconnect with new object
+      evtSource.close()
+      console.warn("Live reload: attempting to reconnect in 3 seconds...")
+
+      setTimeout(() => startReloadConnection(), 3000)
+    }
+  }
+}
+setTimeout(() => {
+  startReloadConnection()
+}, 500)
+</script>
+
+ %>
+
+<base target="_blank" rel="noopener noreferrer">
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400,500,600,700&display=swap"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&display=swap"
+/>
+
+  </head>
+  <body class="page ">
+    <header>
+  <span class="title">Emily Samp</span>
+
+  <nav>
+    <ul>
+      <li><a href="/" target="_self">Home</a></li>
+      <li><a href="/blog" target="_self">Blog</a></li>
+      <li><a href="/talks" target="_self">Talks</a></li>
+      <li><a href="/podcasts" target="_self">Podcasts</a></li>
+      <li><a href="/projects" target="_self">Projects</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+    <main>
+      <h1>Blog</h1>
+
+
+<h3>
+    <a href="/2023/07/13/sorbet-ruby-32/">Making Sorbet compatible with Ruby 3.2</a>
+  </h3>
+
+<p class="subtitle">
+    July 13, 2023
+  </p>
+
+<p>A summary of the work my team did to make Sorbet compatible with Ruby 3.2.</p>
+
+<h3>
+    <a href="/2022/11/26/git-bisect/">Automated debugging with git bisect and rspec</a>
+  </h3>
+
+<p class="subtitle">
+    November 26, 2022
+  </p>
+
+<p>Git bisect is a useful tool that can drastically speed up debugging if you know how to use it. In this blog post, I explain how to set up an automated git bisect for maximum productivity.</p>
+
+
+
+    </main>
+
+    <footer>
+  <a href="https://github.com/egiurleo">GitHub</a> •
+  <a href="https://bsky.app/profile/emilysamp.dev">Bluesky</a> •
+  <a href="mailto:emily.samp@icloud.com">Email</a>
+</footer>
+
+  </body>
+</html>

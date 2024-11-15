@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://bridgetownrb.com/" version="1.3.4">Bridgetown</generator><link href="https://emilysamp.dev/feed.xml" rel="self" type="application/atom+xml" /><link href="https://emilysamp.dev/" rel="alternate" type="text/html" /><updated>2024-11-15T17:38:37+00:00</updated><id>https://emilysamp.dev/feed.xml</id><title type="html">Emily Samp</title><subtitle>The website of Emily Samp, a software developer and community organizer.</subtitle><author><name>Emily Samp</name></author><entry><title type="html">Making Sorbet compatible with Ruby 3.2</title><link href="https://emilysamp.dev/2023/07/13/sorbet-ruby-32/" rel="alternate" type="text/html" title="Making Sorbet compatible with Ruby 3.2" /><published>2023-07-13T00:00:00+00:00</published><updated>2023-07-13T00:00:00+00:00</updated><id>repo://posts.collection/_posts/2023-07-13-sorbet-ruby-32.md</id><content type="html" xml:base="https://emilysamp.dev/2023/07/13/sorbet-ruby-32/">&lt;p class=&quot;post-date&quot;&gt;
+  July 13, 2023
+&lt;/p&gt;
+
+&lt;p class=&quot;note&quot;&gt;
+  ⚠️ &lt;strong&gt;Note&lt;/strong&gt;: This article is cross-posted from Shopify’s &lt;a href=&quot;https://railsatscale.com/2023-06-16-adding-ruby-3-2-support-to-sorbet/&quot;&gt;Rails at Scale blog&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;On the Ruby Developer Experience team here at Shopify, our goal is to deliver a state-of-the-art development experience to Rubyists both at Shopify and in the broader community. This means keeping our tools up-to-date with the most recent versions of Ruby.&lt;/p&gt;
+
+&lt;p&gt;One such tool is &lt;a href=&quot;https://sorbet.org/&quot;&gt;Sorbet&lt;/a&gt;, which is an open source, gradual type checker for Ruby. Sorbet has become a key part of the development experience at Shopify, making it faster and safer for developers to collaborate on a monolith with tens of thousands of Ruby files.&lt;/p&gt;
+
+&lt;p&gt;When we upgraded the Shopify monolith to use Ruby 3.2 at the beginning of 2023, we knew it would require us to make some changes to Sorbet. While upgrading Ruby didn’t break type checking, Sorbet did not yet support all of the &lt;a href=&quot;https://www.ruby-lang.org/en/news/2022/12/25/ruby-3-2-0-released/&quot;&gt;features introduced in this new Ruby version&lt;/a&gt;. If Shopify developers were going to take advantage of the features that came with Ruby 3.2, like the &lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; class and anonymous argument forwarding, we would need to make sure Sorbet could accurately type check these usages and report any type checking errors.&lt;/p&gt;
+
+&lt;p&gt;This post is a summary of the work we did to make Sorbet compatible with Ruby 3.2.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-sorbet-pipeline&quot;&gt;The Sorbet pipeline&lt;/h2&gt;
+
+&lt;p&gt;Sorbet statically type checks our code in a process called the &lt;a href=&quot;https://github.com/sorbet/sorbet/blob/master/docs/internals.md#pipeline&quot;&gt;“pipeline”&lt;/a&gt;. The pipeline is made up of different stages, each of which modifies some internal representation of the code before passing it along to the next stage. The ultimate goal of the pipeline is to convert Ruby code into a representation that enables Sorbet to reason about types and identify type checking errors.&lt;/p&gt;
+
+&lt;p&gt;When updating Sorbet to support a new feature in Ruby, it is important to understand which part of the pipeline needs to be changed. When explaining each of the changes my teammates and I implemented, I’ll also give an explanation of the relevant parts of the Sorbet pipeline so you can understand why we approached these problems in the ways we did.&lt;/p&gt;
+
+&lt;p&gt;I hope this overview of Sorbet’s architecture might also encourage you to contribute to Sorbet in the future!&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;anonymous-argument-forwarding-and-the-sorbet-parser&quot;&gt;Anonymous argument forwarding and the Sorbet parser&lt;/h2&gt;
+
+&lt;p&gt;The largest syntax change in Ruby 3.2 was the introduction of &lt;a href=&quot;https://bugs.ruby-lang.org/issues/18351&quot;&gt;anonymous argument forwarding&lt;/a&gt;. This means that in Ruby, it is now possible for a method that takes anonymous arguments or keyword arguments to pass them along to another method, as in this example:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;baz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;quux&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;updating-sorbets-parser&quot;&gt;Updating Sorbet’s parser&lt;/h3&gt;
+
+&lt;p&gt;To support this feature, we first needed to make a change to Sorbet’s parser grammar.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://github.com/sorbet/sorbet/blob/master/docs/internals.md#parser&quot;&gt;parser&lt;/a&gt; is the first step in the Sorbet pipeline. Its job is to convert Ruby code into an abstract syntax tree, which is then passed through the rest of the pipeline to be processed and eventually type checked. Without updating the parser, Sorbet wouldn’t even be able to recognize anonymous argument forwarding as valid Ruby code and would raise syntax errors, erroneously telling developers they’d made a mistake!&lt;/p&gt;
+
+&lt;p&gt;To address this, we opened a &lt;a href=&quot;https://github.com/sorbet/sorbet/pull/6910/commits/51808d62a501a97cd60ec6ab9e10aaff821d1e0f&quot;&gt;pull request&lt;/a&gt; that created two new abstract syntax tree nodes representing anonymous argument forwarding. With this change, Sorbet could now represent anonymous argument forwarding in a way that was usable by the following steps in the type checking pipeline.&lt;/p&gt;
+
+&lt;p&gt;We can &lt;a href=&quot;https://sorbet.run/?arg=--print&amp;amp;arg=parse-tree#%23%20typed%3A%20true%0A%0Adef%20foo%28*%29%0A%20%20bar%28*%29%0Aend%0A%0Adef%20baz%28**%29%0A%20%20quux%28**%29%0Aend&quot;&gt;see the parser at work using sorbet.run&lt;/a&gt;, Sorbet’s online sandbox. If we add the URL parameters &lt;code class=&quot;highlighter-rouge&quot;&gt;?arg=--print&amp;amp;arg=parse-tree&lt;/code&gt;, the Sorbet sandbox will print out the results of the parsing step in the pipeline. In these results, we can see that the &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; method receives an argument node of the type &lt;code class=&quot;highlighter-rouge&quot;&gt;ForwardedRestArg&lt;/code&gt;, and the &lt;code class=&quot;highlighter-rouge&quot;&gt;baz&lt;/code&gt; method receives an argument node of the type &lt;code class=&quot;highlighter-rouge&quot;&gt;ForwardedKwrestArg&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;(By the way, if you’re interested in learning more about parsing in Ruby, check out &lt;a href=&quot;https://railsatscale.com//2023-06-12-rewriting-the-ruby-parser/&quot;&gt;Kevin Newton’s recent blog post&lt;/a&gt; about building a new Ruby parser.)&lt;/p&gt;
+
+&lt;h3 id=&quot;desugaring&quot;&gt;Desugaring&lt;/h3&gt;
+
+&lt;p&gt;Updating the parser was the first step in allowing Sorbet to process instances of anonymous argument forwarding, but supporting this feature also required changes to another step in the Sorbet pipeline: the desugarer.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://github.com/sorbet/sorbet/blob/master/docs/internals.md#desugar&quot;&gt;desugarer&lt;/a&gt; is the next step in the Sorbet pipeline after the parser; it takes the internal representation built by the parser and cuts it down to a less granular representation, making it easier to work with in later stages of the pipeline.&lt;/p&gt;
+
+&lt;p&gt;To explain what I mean, let’s look at how Sorbet desugars &lt;code class=&quot;highlighter-rouge&quot;&gt;case&lt;/code&gt; statements like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pokemon&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Charmander&apos;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Squirtle&apos;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Bulbasaur&apos;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The Sorbet desugarer will take the above &lt;code class=&quot;highlighter-rouge&quot;&gt;case&lt;/code&gt; statement and transform it into an &lt;code class=&quot;highlighter-rouge&quot;&gt;if&lt;/code&gt; statement:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Charmander&apos;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pokemon&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Squirtle&apos;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pokemon&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Bulbasaur&apos;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pokemon&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Sorbet does this because it’s simpler to maintain type checking logic for one type of code pattern rather than two. This is why this step of the pipeline is called the “desugarer” – it removes “syntactic sugar,” or syntax that exists only to make the development experience better. If earlier stages of the pipeline can limit the different kinds of syntax Sorbet has to type check, then later stages of the pipeline will contain less type checking logic, making them easier to reason about and maintain.&lt;/p&gt;
+
+&lt;p&gt;We applied a similar principle to desugaring anonymous argument forwarding. Rather than implementing an entire new type checking process for &lt;code class=&quot;highlighter-rouge&quot;&gt;ForwardedRestArg&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;ForwardedKwrestArg&lt;/code&gt; nodes, we used the desugarer to transform them into a representation that Sorbet already knew how to type check!&lt;/p&gt;
+
+&lt;p&gt;Back in 2020, my teammate Alexandre added support for &lt;a href=&quot;https://bugs.ruby-lang.org/issues/16253&quot;&gt;Ruby 2.7’s “forward everything” syntax&lt;/a&gt; to Sorbet (&lt;a href=&quot;https://github.com/sorbet/sorbet/pull/3420&quot;&gt;PR here&lt;/a&gt;). As part of that work, he added logic to the desugarer that would break down forwarded args into three “magic” expressions. As an example, if we had the following code snippet:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buzz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;biz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The Sorbet desugarer would transform the arguments passed to &lt;code class=&quot;highlighter-rouge&quot;&gt;biz&lt;/code&gt; into something like:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;fwd-args&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;fwd-kwargs&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;fwd-block&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;None of these expressions actually exist in Ruby code – they’re created by the desugarer as a placeholder that Sorbet can type check later on in the pipeline. This is why they’re called “magic.”&lt;/p&gt;
+
+&lt;p&gt;You can see this for yourself on &lt;a href=&quot;https://sorbet.run/?arg=--print&amp;amp;arg=desugar-tree#%23%20typed%3A%20true%0A%0Adef%20buzz%28...%29%0A%20%20biz%28...%29%0Aend&quot;&gt;sorbet.run&lt;/a&gt;. In this case, if we add the &lt;code class=&quot;highlighter-rouge&quot;&gt;?arg=--print&amp;amp;arg=desugar-tree&lt;/code&gt; URL parameters, sorbet.run will show us the output of the desugaring stage, including the magic expressions listed above!&lt;/p&gt;
+
+&lt;p&gt;Because Ruby 3.2’s anonymous argument forwarding feature is so similar to the forward everything syntax, we were able to lean on the work that Alexandre had already done. We updated the desugarer to desugar &lt;code class=&quot;highlighter-rouge&quot;&gt;ForwardedRestArg&lt;/code&gt; nodes (e.g. the argument of &lt;code class=&quot;highlighter-rouge&quot;&gt;bar(*)&lt;/code&gt;) as magic &lt;code class=&quot;highlighter-rouge&quot;&gt;fwd-args&lt;/code&gt; expressions and &lt;code class=&quot;highlighter-rouge&quot;&gt;ForwardedKwrestArg&lt;/code&gt; nodes (e.g. the arguemnt of &lt;code class=&quot;highlighter-rouge&quot;&gt;quux(**)&lt;/code&gt;) as magic &lt;code class=&quot;highlighter-rouge&quot;&gt;fwd-kwargs&lt;/code&gt; expressions.&lt;/p&gt;
+
+&lt;p&gt;You can see how Sorbet desugars anonymous argument forwarding on &lt;a href=&quot;https://sorbet.run/?arg=--print&amp;amp;arg=desugar-tree#%23%20typed%3A%20true%0A%0Adef%20foo%28*%29%0A%20%20bar%28*%29%0Aend%0A%0Adef%20baz%28**%29%0A%20%20quux%28**%29%0Aend&quot;&gt;sorbet.run&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Once we modified the desugarer to convert forwarded anonymous arguments into a representation that Sorbet already knew how to type check, we could rely on the rest of the pipeline to complete the type checking process!&lt;/p&gt;
+
+&lt;p&gt;To see our full set of changes, check out the &lt;a href=&quot;https://github.com/sorbet/sorbet/pull/6910&quot;&gt;pull request that implements support for anonymous argument forwarding in Sorbet&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;supporting-the-new-data-class&quot;&gt;Supporting the new &lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; class&lt;/h2&gt;
+
+&lt;p&gt;Another major change in Ruby 3.2 was addition of the &lt;a href=&quot;https://docs.ruby-lang.org/en/3.2/Data.html&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; class&lt;/a&gt;. &lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; provides a convenient way to define immutable data structures in Ruby. Here’s an example:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;no&quot;&gt;Measure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:amount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;distance&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Measure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;km&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;distance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;amount&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;#=&amp;gt; 100&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;distance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;unit&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;#=&amp;gt; &quot;km&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In this example, calling &lt;code class=&quot;highlighter-rouge&quot;&gt;Data.define&lt;/code&gt; creates a new class that has some methods built into it, including a constructor and &lt;code class=&quot;highlighter-rouge&quot;&gt;amount&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;unit&lt;/code&gt; accessor methods. Because these methods are created at runtime, Sorbet wouldn’t be able to know about them statically without a little help. To “teach” Sorbet about these methods, we needed to make a change to a part of the pipeline called the “rewriter.”&lt;/p&gt;
+
+&lt;h3 id=&quot;adding-a-new-rewriter&quot;&gt;Adding a new rewriter&lt;/h3&gt;
+
+&lt;p&gt;The stage of the pipeline after the “desugarer” is the “rewriter” stage. &lt;a href=&quot;https://github.com/sorbet/sorbet/blob/master/docs/internals.md#rewriter&quot;&gt;Rewriters&lt;/a&gt; are very similar to the desugarer, but while the desugarer is broad and covers many types of Ruby syntax, rewriters are specific; they each handle a particular Ruby class or feature.&lt;/p&gt;
+
+&lt;p&gt;For example, Sorbet’s &lt;a href=&quot;https://github.com/sorbet/sorbet/blob/master/rewriter/ClassNew.cc&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ClassNew&lt;/code&gt;&lt;/a&gt; rewriter consolidates how Sorbet represents class definitions. A line like &lt;code class=&quot;highlighter-rouge&quot;&gt;Child = Class.new(Parent)&lt;/code&gt; would be rewritten as &lt;code class=&quot;highlighter-rouge&quot;&gt;class Child &amp;lt; Parent; end&lt;/code&gt;. This means that Sorbet only needs to know how to type check one class definition syntax rather than two, which simplifies later steps of the type checking pipeline.&lt;/p&gt;
+
+&lt;p&gt;My teammates and I applied the same principle to Ruby’s new &lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; class. We opened a &lt;a href=&quot;https://github.com/sorbet/sorbet/pull/6760&quot;&gt;PR on Sorbet&lt;/a&gt; that added a new &lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; rewriter. This rewriter finds calls to &lt;code class=&quot;highlighter-rouge&quot;&gt;Data.define&lt;/code&gt; and modifies Sorbet’s internal representation of the resulting class to include an initializer, as well as accessor methods for every field passed into the &lt;code class=&quot;highlighter-rouge&quot;&gt;define&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;p&gt;You can &lt;a href=&quot;https://sorbet.run/?arg=--print&amp;amp;arg=rewrite-tree#%23%20typed%3A%20true%0A%0AMeasure%20%3D%20Data.define%28%3Aamount%2C%20%3Aunit%29&quot;&gt;see this rewriter&lt;/a&gt; in action on sorbet.run, Sorbet’s online sandbox. By passing in the URL parameters &lt;code class=&quot;highlighter-rouge&quot;&gt;?arg=--print&amp;amp;arg=rewrite-tree&lt;/code&gt;, we can ask Sorbet to print out the results of the rewriter phase of the pipeline, allowing us to visiualize the changes that Sorbet is making to our code under the hood!&lt;/p&gt;
+
+&lt;p&gt;If you click the link above, you’ll see that Sorbet rewrites &lt;code class=&quot;highlighter-rouge&quot;&gt;Measure = Data.define(:amount, :unit)&lt;/code&gt; as something closer to:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Measure&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;amount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;amount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Once it knows about methods that will be defined at runtime, Sorbet can accurately type check code that uses Ruby 3.2’s new &lt;code class=&quot;highlighter-rouge&quot;&gt;Data&lt;/code&gt; class!&lt;/p&gt;
+
+&lt;h2 id=&quot;updating-ruby-core-rbi-files&quot;&gt;Updating Ruby Core RBI files&lt;/h2&gt;
+
+&lt;p&gt;The last thing my teammates and I needed to do to make Sorbet compatible with Ruby 3.2 was to update Sorbet’s RBI files to reflect the latest changes to Ruby’s core API.&lt;/p&gt;
+
+&lt;p&gt;In order to type check methods from Ruby core, Sorbet keeps a &lt;a href=&quot;https://github.com/sorbet/sorbet/tree/master/rbi/core&quot;&gt;repository of RBI files&lt;/a&gt; that define types on every class and module in the Ruby core library. When methods changed in new Ruby versions, Sorbet’s RBIs have to be updated to reflect these changes before Sorbet can begin accurately type checking those methods in our code.&lt;/p&gt;
+
+&lt;p&gt;My teammates and I opened a series of PRs against Sorbet that modified the Ruby core RBI files to reflect the changes introduced in Ruby 3.2. Here are some examples:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/sorbet/sorbet/pull/6866&quot;&gt;Update String RBI for 3.2 changes&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/sorbet/sorbet/pull/6851&quot;&gt;Update Hash#shift RBI&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/sorbet/sorbet/pull/6773&quot;&gt;Add RBIs for Regexp.timeout and Regexp.timeout=&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;In doing this work, we ensured that Ruby developers at Shopify and in the broader community could leverage all the awesome, new features introduced in Ruby 3.2 while still benefitting from the safety of type checking.&lt;/p&gt;
+
+&lt;p&gt;If you’re interested in any of the features mentioned in this article, you can test them out using &lt;a href=&quot;https://sorbet.run/&quot;&gt;Sorbet’s online sandbox&lt;/a&gt;!&lt;/p&gt;</content><author><name>Emily Samp</name></author><category term="sorbet" /></entry><entry><title type="html">Automated debugging with git bisect and rspec</title><link href="https://emilysamp.dev/2022/11/26/git-bisect/" rel="alternate" type="text/html" title="Automated debugging with git bisect and rspec" /><published>2022-11-26T00:00:00+00:00</published><updated>2022-11-26T00:00:00+00:00</updated><id>repo://posts.collection/_posts/2022-11-26-git-bisect.md</id><content type="html" xml:base="https://emilysamp.dev/2022/11/26/git-bisect/">&lt;p class=&quot;post-date&quot;&gt;
+  November 26, 2022
+&lt;/p&gt;
+
+&lt;p class=&quot;note&quot;&gt;
+  ⚠️ &lt;strong&gt;Note&lt;/strong&gt;: This article is cross-posted from my &lt;a href=&quot;https://dev.to/emilysamp/how-to-run-an-automated-git-bisect-with-rspec-3dm3&quot;&gt;old Dev.to blog&lt;/a&gt; and was originally written in 2021.
+&lt;/p&gt;
+
+&lt;p&gt;Debugging is hard. I mean like, really hard.&lt;/p&gt;
+
+&lt;p&gt;As a software engineer, I am constantly expanding my debugging tool belt in an effort to become a faster, more effective debugger. One tool that I’ve known about for a long time but only starting using recently is &lt;strong&gt;git bisect&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;In this blog post, I’ll explain what git bisect is, when it’s useful, and how to use it to automate your debugging process with rspec.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-git-bisect&quot;&gt;What is git bisect?&lt;/h2&gt;
+
+&lt;p&gt;When you discover a bug in your code, you’ll often start by asking yourself, “When was this bug introduced, and how?” This is easy enough if your project doesn’t have very many commits – you can go commit by commit and check when the bug was introduced. However, the older your project is, the harder this becomes. What if the bug was introduced 100 commits ago? You can’t be expected to test every single one!&lt;/p&gt;
+
+&lt;p&gt;This is where &lt;code class=&quot;highlighter-rouge&quot;&gt;git bisect&lt;/code&gt; comes in. Git bisect is a feature in &lt;a href=&quot;https://git-scm.com/&quot;&gt;git&lt;/a&gt; that helps you quickly find which of your commits introduced a bug using the power of &lt;a href=&quot;https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search&quot;&gt;binary search&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;(It’s not necessary to understand how binary search works in order to use git bisect, but it’s certainly interesting if you want to learn more about it!)&lt;/p&gt;
+
+&lt;h2 id=&quot;how-it-works&quot;&gt;How it works&lt;/h2&gt;
+
+&lt;p&gt;First, you have to find an older commit that does not have the bug. This is called a “good” commit. Then, you find a more recent commit that does have the bug. This is a “bad” commit. You know that the bug was introduced sometime between these two commits, and git bisect will help you find out when.&lt;/p&gt;
+
+&lt;p&gt;Git bisect then performs a binary search, choosing commits in between the ones you specified and testing whether each one is “good” or “bad” (you can automate this step, or test each commit yourself).&lt;/p&gt;
+
+&lt;p&gt;After a few rounds of tests, git bisect will be able to identify which commit created the bug!&lt;/p&gt;
+
+&lt;p&gt;If this still sounds like a lot of work, I have good news – you can provide git bisect with an rspec test so it can automatically determine whether a commit is good or bad. This makes the process almost entirely automatic, and while you go make yourself some coffee, git can let you know which of your commits created that bug you’ve been hunting.&lt;/p&gt;
+
+&lt;h2 id=&quot;scripted-git-bisect&quot;&gt;Scripted git bisect&lt;/h2&gt;
+
+&lt;p&gt;Here are the steps you need to follow to run an automated git bisect with rspec:&lt;/p&gt;
+
+&lt;h3 id=&quot;step-one-start-git-bisect&quot;&gt;Step One: Start git bisect&lt;/h3&gt;
+
+&lt;p&gt;You can tell git to start up a bisect with the following command:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git bisect start
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This puts git into “bisect mode”, which means you won’t be able to do things like commit changes to your code. To exit bisect mode, run &lt;code class=&quot;highlighter-rouge&quot;&gt;git bisect reset&lt;/code&gt; at any time.&lt;/p&gt;
+
+&lt;h3 id=&quot;step-two-find-a-good-commit&quot;&gt;Step Two: Find a “good” commit&lt;/h3&gt;
+
+&lt;p&gt;Look back in your commit history and find one that doesn’t have the bug. Once you’ve found it, run the following command (replace &lt;code class=&quot;highlighter-rouge&quot;&gt;a09c728&lt;/code&gt; with the SHA of your commit):&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git bisect good a09c728
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;step-three-find-a-bad-commit&quot;&gt;Step Three: Find a “bad” commit&lt;/h3&gt;
+
+&lt;p&gt;Find a more recent commit that does have the bug. Pass the commit SHA to the following command (replace &lt;code class=&quot;highlighter-rouge&quot;&gt;b6a0692&lt;/code&gt; with your commit SHA):&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git bisect bad b6a0692
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;step-four-identify-or-write-a-failing-rspec-test&quot;&gt;Step Four: Identify (or write) a failing rspec test&lt;/h3&gt;
+
+&lt;p&gt;In order to automate the git bisect, you’ll have to write a test that fails when the bug is present. You can tell &lt;code class=&quot;highlighter-rouge&quot;&gt;git bisect&lt;/code&gt; to run this test on every commit, which will allow it to automatically determine if a commit is good or bad.&lt;/p&gt;
+
+&lt;p&gt;Here is an example rspec test in the file &lt;code class=&quot;highlighter-rouge&quot;&gt;spec/cat_spec.rb&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;describe&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Cat&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;describe&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;#speak&apos;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;expect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Cat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;Proxie&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;speak&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;Meow!&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If this test fails, you’ll know that the bug is present, and thus that a commit is “bad”.&lt;/p&gt;
+
+&lt;h3 id=&quot;step-five-run-git-bisect&quot;&gt;Step Five: Run git bisect&lt;/h3&gt;
+
+&lt;p&gt;Now you can run the automated git bisect with the following command:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git bisect run rspec spec/cat_spec.rb
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Remember to replace &lt;code class=&quot;highlighter-rouge&quot;&gt;spec/cat_spec.rb&lt;/code&gt; with the path to the test that you wrote in step four. Also remember that you can provide a line number to rspec (if you have many tests in the same file but only want to run one of them). For example, you could run:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git bisect run rspec spec/cat_spec.rb:2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;step-six-profit&quot;&gt;Step Six: Profit&lt;/h3&gt;
+
+&lt;p&gt;Git bisect will test a variety of commits, and it will eventually find the first bad commit, aka the commit that introduced the bug!&lt;/p&gt;
+
+&lt;p&gt;The output will look something like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 8b3c38f8680f653f07227f0cef42e54939de448b is the first bad commit
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now you can examine that commit and figure out exactly what part of your code introduced the bug!&lt;/p&gt;
+
+&lt;h3 id=&quot;step-seven-clean-up&quot;&gt;Step Seven: Clean up&lt;/h3&gt;
+
+&lt;p&gt;Once you’re done running git bisect, you can restore git to its normal state by running the following command:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git bisect reset
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You can do this at any time during the bisect (even before you run it) to get out of “bisect mode” and get back to your normal workflows.&lt;/p&gt;
+
+&lt;p&gt;That’s all there is to it! With a few commands and a good rspec test, you can simplify what would otherwise be a long and grueling debugging process. Git bisect has come in handy for me, and I hope it helps you out, too!&lt;/p&gt;</content><author><name>Emily Samp</name></author><category term="git," /><category term="productivity," /><category term="ruby," /><category term="rspec" /></entry></feed>

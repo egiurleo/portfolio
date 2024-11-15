@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Automated debugging with git bisect and rspec | Emily Samp</title>
+
+<meta name="description" content="The website of Emily Samp, a software developer and community organizer." />
+
+<link rel="stylesheet" href="/_bridgetown/static/index.XPTEAHIP.css" />
+<script src="/_bridgetown/static/index.RARUY3ZT.js" defer></script>
+<script type="module">let lastmod = 0
+function startReloadConnection() {
+  const evtSource = new EventSource("/_bridgetown/live_reload")
+  evtSource.onmessage = event => {
+    if (document.querySelector("#bridgetown-build-error")) document.querySelector("#bridgetown-build-error").close()
+    if (event.data == "reloaded!") {
+      location.reload()
+    } else {
+      const newmod = Number(event.data)
+      if (lastmod > 0 && newmod > 0 && lastmod < newmod) {
+        location.reload()
+      } else {
+        lastmod = newmod
+      }
+    }
+  }
+  evtSource.addEventListener("builderror", event => {
+    let dialog = document.querySelector("#bridgetown-build-error")
+    if (!dialog) {
+      dialog = document.createElement("dialog")
+      dialog.id = "bridgetown-build-error"
+      dialog.style.borderColor = "red"
+      dialog.style.fontSize = "110%"
+      dialog.innerHTML = `
+        <p style="color:red">There was an error when building the site:</p>
+        <output><pre></pre></output>
+        <p><small>Check your Bridgetown logs for further details.</small></p>
+      `
+      document.body.appendChild(dialog)
+      dialog.showModal()
+    }
+    dialog.querySelector("pre").textContent = JSON.parse(event.data)
+  })
+  evtSource.onerror = event => {
+    if (evtSource.readyState === 2) {
+      // reconnect with new object
+      evtSource.close()
+      console.warn("Live reload: attempting to reconnect in 3 seconds...")
+
+      setTimeout(() => startReloadConnection(), 3000)
+    }
+  }
+}
+setTimeout(() => {
+  startReloadConnection()
+}, 500)
+</script>
+
+ %>
+
+<base target="_blank" rel="noopener noreferrer">
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400,500,600,700&display=swap"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&display=swap"
+/>
+
+  </head>
+  <body class="post ">
+    <header>
+  <span class="title">Emily Samp</span>
+
+  <nav>
+    <ul>
+      <li><a href="/" target="_self">Home</a></li>
+      <li><a href="/blog" target="_self">Blog</a></li>
+      <li><a href="/talks" target="_self">Talks</a></li>
+      <li><a href="/podcasts" target="_self">Podcasts</a></li>
+      <li><a href="/projects" target="_self">Projects</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+    <main>
+      <h1>Automated debugging with git bisect and rspec</h1>
+
+<p class="post-date">
+  November 26, 2022
+</p>
+
+<p class="note">
+  ⚠️ <strong>Note</strong>: This article is cross-posted from my <a href="https://dev.to/emilysamp/how-to-run-an-automated-git-bisect-with-rspec-3dm3">old Dev.to blog</a> and was originally written in 2021.
+</p>
+
+<p>Debugging is hard. I mean like, really hard.</p>
+
+<p>As a software engineer, I am constantly expanding my debugging tool belt in an effort to become a faster, more effective debugger. One tool that I’ve known about for a long time but only starting using recently is <strong>git bisect</strong>.</p>
+
+<p>In this blog post, I’ll explain what git bisect is, when it’s useful, and how to use it to automate your debugging process with rspec.</p>
+
+<h2 id="what-is-git-bisect">What is git bisect?</h2>
+
+<p>When you discover a bug in your code, you’ll often start by asking yourself, “When was this bug introduced, and how?” This is easy enough if your project doesn’t have very many commits – you can go commit by commit and check when the bug was introduced. However, the older your project is, the harder this becomes. What if the bug was introduced 100 commits ago? You can’t be expected to test every single one!</p>
+
+<p>This is where <code class="highlighter-rouge">git bisect</code> comes in. Git bisect is a feature in <a href="https://git-scm.com/">git</a> that helps you quickly find which of your commits introduced a bug using the power of <a href="https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search">binary search</a>.</p>
+
+<p>(It’s not necessary to understand how binary search works in order to use git bisect, but it’s certainly interesting if you want to learn more about it!)</p>
+
+<h2 id="how-it-works">How it works</h2>
+
+<p>First, you have to find an older commit that does not have the bug. This is called a “good” commit. Then, you find a more recent commit that does have the bug. This is a “bad” commit. You know that the bug was introduced sometime between these two commits, and git bisect will help you find out when.</p>
+
+<p>Git bisect then performs a binary search, choosing commits in between the ones you specified and testing whether each one is “good” or “bad” (you can automate this step, or test each commit yourself).</p>
+
+<p>After a few rounds of tests, git bisect will be able to identify which commit created the bug!</p>
+
+<p>If this still sounds like a lot of work, I have good news – you can provide git bisect with an rspec test so it can automatically determine whether a commit is good or bad. This makes the process almost entirely automatic, and while you go make yourself some coffee, git can let you know which of your commits created that bug you’ve been hunting.</p>
+
+<h2 id="scripted-git-bisect">Scripted git bisect</h2>
+
+<p>Here are the steps you need to follow to run an automated git bisect with rspec:</p>
+
+<h3 id="step-one-start-git-bisect">Step One: Start git bisect</h3>
+
+<p>You can tell git to start up a bisect with the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git bisect start
+</code></pre></div></div>
+
+<p>This puts git into “bisect mode”, which means you won’t be able to do things like commit changes to your code. To exit bisect mode, run <code class="highlighter-rouge">git bisect reset</code> at any time.</p>
+
+<h3 id="step-two-find-a-good-commit">Step Two: Find a “good” commit</h3>
+
+<p>Look back in your commit history and find one that doesn’t have the bug. Once you’ve found it, run the following command (replace <code class="highlighter-rouge">a09c728</code> with the SHA of your commit):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git bisect good a09c728
+</code></pre></div></div>
+
+<h3 id="step-three-find-a-bad-commit">Step Three: Find a “bad” commit</h3>
+
+<p>Find a more recent commit that does have the bug. Pass the commit SHA to the following command (replace <code class="highlighter-rouge">b6a0692</code> with your commit SHA):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git bisect bad b6a0692
+</code></pre></div></div>
+
+<h3 id="step-four-identify-or-write-a-failing-rspec-test">Step Four: Identify (or write) a failing rspec test</h3>
+
+<p>In order to automate the git bisect, you’ll have to write a test that fails when the bug is present. You can tell <code class="highlighter-rouge">git bisect</code> to run this test on every commit, which will allow it to automatically determine if a commit is good or bad.</p>
+
+<p>Here is an example rspec test in the file <code class="highlighter-rouge">spec/cat_spec.rb</code>:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">describe</span> <span class="no">Cat</span> <span class="k">do</span>
+  <span class="n">describe</span> <span class="s1">'#speak'</span> <span class="k">do</span>
+    <span class="n">expect</span><span class="p">(</span><span class="no">Cat</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'Proxie'</span><span class="p">).</span><span class="nf">speak</span><span class="p">).</span><span class="nf">to</span> <span class="n">eq</span><span class="p">(</span><span class="s1">'Meow!'</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>If this test fails, you’ll know that the bug is present, and thus that a commit is “bad”.</p>
+
+<h3 id="step-five-run-git-bisect">Step Five: Run git bisect</h3>
+
+<p>Now you can run the automated git bisect with the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git bisect run rspec spec/cat_spec.rb
+</code></pre></div></div>
+
+<p>Remember to replace <code class="highlighter-rouge">spec/cat_spec.rb</code> with the path to the test that you wrote in step four. Also remember that you can provide a line number to rspec (if you have many tests in the same file but only want to run one of them). For example, you could run:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git bisect run rspec spec/cat_spec.rb:2
+</code></pre></div></div>
+
+<h3 id="step-six-profit">Step Six: Profit</h3>
+
+<p>Git bisect will test a variety of commits, and it will eventually find the first bad commit, aka the commit that introduced the bug!</p>
+
+<p>The output will look something like this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> 8b3c38f8680f653f07227f0cef42e54939de448b is the first bad commit
+</code></pre></div></div>
+
+<p>Now you can examine that commit and figure out exactly what part of your code introduced the bug!</p>
+
+<h3 id="step-seven-clean-up">Step Seven: Clean up</h3>
+
+<p>Once you’re done running git bisect, you can restore git to its normal state by running the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git bisect reset
+</code></pre></div></div>
+
+<p>You can do this at any time during the bisect (even before you run it) to get out of “bisect mode” and get back to your normal workflows.</p>
+
+<p>That’s all there is to it! With a few commands and a good rspec test, you can simplify what would otherwise be a long and grueling debugging process. Git bisect has come in handy for me, and I hope it helps you out, too!</p>
+
+
+    </main>
+
+    <footer>
+  <a href="https://github.com/egiurleo">GitHub</a> •
+  <a href="https://bsky.app/profile/emilysamp.dev">Bluesky</a> •
+  <a href="mailto:emily.samp@icloud.com">Email</a>
+</footer>
+
+  </body>
+</html>

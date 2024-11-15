@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects | Emily Samp</title>
+
+<meta name="description" content="The website of Emily Samp, a software developer and community organizer." />
+
+<link rel="stylesheet" href="/_bridgetown/static/index.XPTEAHIP.css" />
+<script src="/_bridgetown/static/index.RARUY3ZT.js" defer></script>
+<script type="module">let lastmod = 0
+function startReloadConnection() {
+  const evtSource = new EventSource("/_bridgetown/live_reload")
+  evtSource.onmessage = event => {
+    if (document.querySelector("#bridgetown-build-error")) document.querySelector("#bridgetown-build-error").close()
+    if (event.data == "reloaded!") {
+      location.reload()
+    } else {
+      const newmod = Number(event.data)
+      if (lastmod > 0 && newmod > 0 && lastmod < newmod) {
+        location.reload()
+      } else {
+        lastmod = newmod
+      }
+    }
+  }
+  evtSource.addEventListener("builderror", event => {
+    let dialog = document.querySelector("#bridgetown-build-error")
+    if (!dialog) {
+      dialog = document.createElement("dialog")
+      dialog.id = "bridgetown-build-error"
+      dialog.style.borderColor = "red"
+      dialog.style.fontSize = "110%"
+      dialog.innerHTML = `
+        <p style="color:red">There was an error when building the site:</p>
+        <output><pre></pre></output>
+        <p><small>Check your Bridgetown logs for further details.</small></p>
+      `
+      document.body.appendChild(dialog)
+      dialog.showModal()
+    }
+    dialog.querySelector("pre").textContent = JSON.parse(event.data)
+  })
+  evtSource.onerror = event => {
+    if (evtSource.readyState === 2) {
+      // reconnect with new object
+      evtSource.close()
+      console.warn("Live reload: attempting to reconnect in 3 seconds...")
+
+      setTimeout(() => startReloadConnection(), 3000)
+    }
+  }
+}
+setTimeout(() => {
+  startReloadConnection()
+}, 500)
+</script>
+
+ %>
+
+<base target="_blank" rel="noopener noreferrer">
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400,500,600,700&display=swap"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700&display=swap"
+/>
+
+  </head>
+  <body class="page ">
+    <header>
+  <span class="title">Emily Samp</span>
+
+  <nav>
+    <ul>
+      <li><a href="/" target="_self">Home</a></li>
+      <li><a href="/blog" target="_self">Blog</a></li>
+      <li><a href="/talks" target="_self">Talks</a></li>
+      <li><a href="/podcasts" target="_self">Podcasts</a></li>
+      <li><a href="/projects" target="_self">Projects</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+    <main>
+      <h1>Projects</h1>
+
+
+<h3>
+    <a href="https://wnb-rb.dev">WNB.rb</a>
+  </h3>
+
+<p class="subtitle">
+      Ongoing
+  </p>
+
+<p>I am the co-founder and co-organizer (along with Jemma Issroff) of WNB.rb, a virtual community for women and non-binary Ruby developers. Jemma and I started WNB.rb with the goal of supporting a more diverse group of people in making an impact on the Ruby community. In two years, it has grown into a community of over 600 technologists, with initiatives including a monthly meetup, book club, interview study group, conference proposal review group, and more!</p>
+
+<h3>
+    <a href="https://rubyconfmini.com">RubyConf Mini</a>
+  </h3>
+
+<p class="subtitle">
+      November 2022
+  </p>
+
+<p>In the wake of the political changes making it unsafe for some community members to attend RubyConf 2022, I worked with <a href="https://jemma.dev">Jemma Issroff</a> and <a href="https://andycroll.com">Andy Croll</a> to organize an alternative option. RubyConf Mini took place in November 2022 in Providence, Rhode Island. It featured 30 sessions, with a heavy focus on inclusion and belonging.</p>
+
+<h3>
+    <a href="https://mapandscorecard.freefrom.org/">FreeFrom Map and Scorecard</a>
+  </h3>
+
+<p class="subtitle">
+      June 2021
+  </p>
+
+<p><a href="https://freefrom.org">FreeFrom</a> is an organization that provides survivors of domestic violence with the tools they need to achieve financial independence. Working with other volunteers at <a href="https://ragtag.org">Ragtag</a>, I served as the <a href="https://github.com/RagtagOpen/freefrom-map-backend">backend tech lead</a> for website that shows which states best support survivors' financial independence. Using this tool, activists can advocate for laws that help survivors recover from abuse.</p>
+
+<h3>
+    <a href="https://compass.freefrom.org/">FreeFrom Compensation Compass</a>
+  </h3>
+
+<p class="subtitle">
+      November 2019
+  </p>
+
+<p><a href="https://freefrom.org">FreeFrom</a> is an organization that provides survivors of domestic violence with the tools they need to achieve financial independence. Working with other volunteers at <a href="https://ragtag.org">Ragtag</a>, I served as the <a href="https://github.com/RagtagOpen/freefrom-compensation-api">backend tech lead</a> for a website that helps survivors acquire financial compensation for the harm they endured.</p>
+
+
+
+    </main>
+
+    <footer>
+  <a href="https://github.com/egiurleo">GitHub</a> •
+  <a href="https://bsky.app/profile/emilysamp.dev">Bluesky</a> •
+  <a href="mailto:emily.samp@icloud.com">Email</a>
+</footer>
+
+  </body>
+</html>
