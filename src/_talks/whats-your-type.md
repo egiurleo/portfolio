@@ -1,7 +1,7 @@
 ---
 layout: talk
 title: What’s your type? Generating type signatures with Sorbet and Tapioca
-url: https://blueridgeruby.com/speakers/emily-samp/
+url: https://www.youtube.com/watch?v=TeMqO3lzfMI
 slides: https://drive.google.com/drive/folders/1Wv0i-WNrMaeInQma1H28i4pwHlb_lMHp?usp=sharing
 summary: |
   You’ve likely heard of Sorbet, a gradual type checker for Ruby. Using Sorbet, developers can harness the flexibility and creativity of a dynamic language like Ruby, while also benefitting from the safety of typing.
