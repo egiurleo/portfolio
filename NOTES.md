@@ -11,12 +11,8 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
 2. [x] **Deploy bug (unplanned, fixed out of order)** — every deploy was wiping
    the custom domain, requiring a manual re-add in Settings → Pages each time.
    Fixed by adding `cname: emilysamp.dev` to the deploy workflow. See log below.
-3. [ ] **Content refresh** — review copy on home/blog/talks/projects/podcasts for
-   anything stale (old job info, outdated talk/project lists, etc.). Also noticed:
-   every file in `src/_talks/` sets `layout: talk`, but no such layout exists
-   (only `default`, `page`, `post`) — harmless today since `talks.md` only reads
-   the resources' data and never renders them as standalone pages, but worth
-   either adding a real `talk` layout or dropping the bogus front matter key.
+3. [x] **Content refresh** — reviewed copy on home/blog/talks/projects/podcasts.
+   Done, see log below.
 4. [ ] **Pagination** — `paginate` config and a `_pagination.erb` partial already
    exist and are wired into blog/talks/projects/podcasts pages. Confirmed the
    build actually runs pagination ("Pagination: Complete, processed 30 pagination
@@ -88,3 +84,23 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
   auto-recreated on `gh-pages` by the deploy itself (not manually), the Pages
   API still reports `cname: emilysamp.dev`, and `https://emilysamp.dev/`
   returns `200`.
+- 2026-08-08: Completed the content refresh:
+  - `site_metadata.yml`: tagline and meta description said "software developer,"
+    inconsistent with the homepage bio ("engineering manager"). Updated both to
+    "engineering manager" to match.
+  - `_projects/wnb-rb.md`: blurb said WNB.rb had "grown into a community of over
+    600 technologists" in "two years" — stale, since the community was founded
+    in Nov 2022. Reworded to drop the hardcoded numbers/timeframe so it won't
+    go stale again.
+  - `talks.md`: two talks (`beyond-type-checking`, `parsing-w-prism-in-sorbet`)
+    have no recording URL yet (`url: ""` / `url: null`), but the template
+    always wrapped the title in an `<a href="...">`, producing a dead link to
+    an empty href. Fixed the template to only render a link when a URL is
+    present, otherwise plain text.
+  - Dropped the bogus `layout: talk` front matter key from all 8 files in
+    `src/_talks/` (no such layout exists; talks are only ever rendered via the
+    `talks.md` listing, never as standalone pages). This also cleared 8 build
+    warnings.
+  - Verified: `bin/bridgetown build` is clean (no warnings), and `/`, `/talks`,
+    `/projects` all return 200 from the dev server with the updated copy
+    rendering correctly.

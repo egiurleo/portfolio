@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: Generating RBIs for dynamic mixins with Sorbet and Tapioca
 url: https://www.youtube.com/watch?v=UpbVZ4Gqk3c
 slides: https://drive.google.com/drive/folders/1PzSj_wTHVIrZNC80IyZzuma85sVIiWTz?usp=sharing

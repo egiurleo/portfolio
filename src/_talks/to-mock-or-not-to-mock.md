@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: "To Mock, or Not to Mock?"
 url: https://www.youtube.com/watch?v=fm_FxuRfcWE
 slides: https://docs.google.com/presentation/d/1il8WKCqY-rsoz-Dbr3hl7MabRFZ3jfc0-xikb4PRGBQ/edit?usp=drive_web&ouid=101939856070811570152

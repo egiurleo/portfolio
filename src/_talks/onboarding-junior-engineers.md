@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: Successfully Onboarding a Junior Engineer in Three Steps
 url: https://www.youtube.com/watch?v=q473dYrJiMQ
 slides: https://docs.google.com/presentation/d/1IKHnxYJ_z1C2Bk5qgeGzIvq4KCaJWbSv/edit#slide=id.p1

@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: Five Errors You Encounter When Upgrading Your Ruby Gems
 url: https://www.youtube.com/watch?v=oBbsBLtXYRM
 summary: |

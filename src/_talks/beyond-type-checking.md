@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: Beyond type checking
 url: ""
 slides: https://drive.google.com/file/d/1pgwblYWzV6h-X5FwkHBOciCAE-9xrKgY/view?usp=share_link

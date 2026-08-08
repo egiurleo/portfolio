@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: "Parsing with Prism in Sorbet"
 url: null
 slides: https://docs.google.com/presentation/d/1sw_V2_FfqTBfge46hBxLYxYcXKVy_LIp7CkqgphP9Ss/edit#slide=id.p

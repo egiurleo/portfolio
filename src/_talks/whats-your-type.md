@@ -1,5 +1,4 @@
 ---
-layout: talk
 title: What’s your type? Generating type signatures with Sorbet and Tapioca
 url: https://www.youtube.com/watch?v=TeMqO3lzfMI
 slides: https://drive.google.com/drive/folders/1Wv0i-WNrMaeInQma1H28i4pwHlb_lMHp?usp=sharing

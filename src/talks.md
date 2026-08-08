@@ -8,7 +8,11 @@ title: Talks
 <% paginator.resources.each do |talk| %>
 
   <h3>
-    <a href="<%= talk.data.url %>"><%= talk.data.title %></a>
+    <% if talk.data.url && !talk.data.url.empty? %>
+      <a href="<%= talk.data.url %>"><%= talk.data.title %></a>
+    <% else %>
+      <%= talk.data.title %>
+    <% end %>
   </h3>
 
   <p class="subtitle">
