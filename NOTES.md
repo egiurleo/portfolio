@@ -64,5 +64,20 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
   - Verified: `bin/bridgetown deploy` (the exact command CI runs) builds clean;
     started the dev server and confirmed `/`, `/blog`, `/talks`, `/projects`,
     `/podcasts` all return 200 with working CSS/JS asset links.
-  - Not yet merged to `main` — waiting on Emily's go-ahead to merge
-    `update/dependencies`.
+  - Merged to `main` and pushed; confirmed the live deploy workflow ran green.
+- 2026-08-08: Fixed a recurring deploy bug — every deploy took the live site
+  down and required manually re-entering the custom domain under Settings →
+  Pages. Root cause: the custom domain is stored as a `CNAME` file that must
+  exist *on the `gh-pages` branch*, but that file lived at the repo root
+  (outside `src/`), so Bridgetown's build never copied it into `output/`. The
+  deploy step (`peaceiris/actions-gh-pages`) replaces the published content on
+  every run, so each deploy silently deleted `CNAME` from `gh-pages` — visible
+  in that branch's history as alternating `deploy: ...` / `Create CNAME`
+  commits (the latter being Emily manually fixing it each time). Also found the
+  root `CNAME` file said `www.emilysamp.dev`, while the domain actually
+  configured in GitHub Pages (and in `bridgetown.config.yml`'s `url:`) is the
+  apex `emilysamp.dev` — that file was stale and never actually took effect.
+  Fix: added `cname: emilysamp.dev` to the Deploy step in
+  `.github/workflows/gh-pages.yml` (a built-in input on
+  `peaceiris/actions-gh-pages` that writes the CNAME file into the published
+  branch on every run), and deleted the now-redundant root `CNAME` file.
