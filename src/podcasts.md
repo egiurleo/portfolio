@@ -15,6 +15,7 @@ title: Podcasts
     <%= podcast.data.date.strftime("%B %Y") %>
   </p>
 
+<%= podcast.data.summary %>
 <% end %>
 
 <%= render "pagination", metadata: site.metadata %>
