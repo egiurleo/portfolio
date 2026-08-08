@@ -26,6 +26,9 @@ vendor
 # Mac files
 .DS_Store
 
+# Bridgetown server runtime files
+/tmp/
+
 # Yarn
 yarn-error.log
 yarn-debug.log*
