@@ -8,18 +8,21 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
 1. [x] **Dependencies** — bump Ruby gems (Bridgetown 1.3.4 → 2.x is a major version),
    JS deps (esbuild, postcss stack), and CI workflow (Node 16 is EOL). Done on
    branch `update/dependencies`, see log below.
-2. [ ] **Content refresh** — review copy on home/blog/talks/projects/podcasts for
+2. [x] **Deploy bug (unplanned, fixed out of order)** — every deploy was wiping
+   the custom domain, requiring a manual re-add in Settings → Pages each time.
+   Fixed by adding `cname: emilysamp.dev` to the deploy workflow. See log below.
+3. [ ] **Content refresh** — review copy on home/blog/talks/projects/podcasts for
    anything stale (old job info, outdated talk/project lists, etc.). Also noticed:
    every file in `src/_talks/` sets `layout: talk`, but no such layout exists
    (only `default`, `page`, `post`) — harmless today since `talks.md` only reads
    the resources' data and never renders them as standalone pages, but worth
    either adding a real `talk` layout or dropping the bogus front matter key.
-3. [ ] **Pagination** — `paginate` config and a `_pagination.erb` partial already
+4. [ ] **Pagination** — `paginate` config and a `_pagination.erb` partial already
    exist and are wired into blog/talks/projects/podcasts pages. Confirmed the
    build actually runs pagination ("Pagination: Complete, processed 30 pagination
    page(s)"). Still need to check what `per_page` is actually set to and whether
    it's a sane number given how few items each collection has right now.
-4. [ ] **Visual refresh** — current design is a single `frontend/styles/index.css`
+5. [ ] **Visual refresh** — current design is a single `frontend/styles/index.css`
    (~160 lines) with a custom color palette and a background image. Modernize
    without losing the personal identity.
 
@@ -81,3 +84,7 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
   `.github/workflows/gh-pages.yml` (a built-in input on
   `peaceiris/actions-gh-pages` that writes the CNAME file into the published
   branch on every run), and deleted the now-redundant root `CNAME` file.
+  Pushed and verified: watched the deploy run green, confirmed `CNAME` was
+  auto-recreated on `gh-pages` by the deploy itself (not manually), the Pages
+  API still reports `cname: emilysamp.dev`, and `https://emilysamp.dev/`
+  returns `200`.
