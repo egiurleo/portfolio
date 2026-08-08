@@ -7,12 +7,15 @@
 
 <meta name="description" content="The website of Emily Samp, a software developer and community organizer." />
 
-<link rel="stylesheet" href="/_bridgetown/static/index.XPTEAHIP.css" />
-<script src="/_bridgetown/static/index.RARUY3ZT.js" defer></script>
+<link rel="stylesheet" href="/_bridgetown/static/index.OFYTTWE5.css" />
+<script src="/_bridgetown/static/index.NAODM6LX.js" defer></script>
 <script type="module">let lastmod = 0
-function startReloadConnection() {
-  const evtSource = new EventSource("/_bridgetown/live_reload")
-  evtSource.onmessage = event => {
+let reconnectAttempts = 0
+function startLiveReload() {
+  const connection = new EventSource("/_bridgetown/live_reload")
+
+  connection.addEventListener("message", event => {
+    reconnectAttempts = 0
     if (document.querySelector("#bridgetown-build-error")) document.querySelector("#bridgetown-build-error").close()
     if (event.data == "reloaded!") {
       location.reload()
@@ -24,8 +27,9 @@ function startReloadConnection() {
         lastmod = newmod
       }
     }
-  }
-  evtSource.addEventListener("builderror", event => {
+  })
+
+  connection.addEventListener("builderror", event => {
     let dialog = document.querySelector("#bridgetown-build-error")
     if (!dialog) {
       dialog = document.createElement("dialog")
@@ -42,19 +46,23 @@ function startReloadConnection() {
     }
     dialog.querySelector("pre").textContent = JSON.parse(event.data)
   })
-  evtSource.onerror = event => {
-    if (evtSource.readyState === 2) {
-      // reconnect with new object
-      evtSource.close()
-      console.warn("Live reload: attempting to reconnect in 3 seconds...")
 
-      setTimeout(() => startReloadConnection(), 3000)
+  connection.addEventListener("error", () => {
+    if (connection.readyState === 2) {
+      // reconnect with new object
+      connection.close()
+      reconnectAttempts++
+      if (reconnectAttempts < 25) {
+        console.warn("Live reload: attempting to reconnect in 3 seconds...")
+        setTimeout(() => startLiveReload(), 3000)
+      } else {
+        console.error("Too many live reload connections failed. Refresh the page to try again.")
+      }
     }
-  }
+  })
 }
-setTimeout(() => {
-  startReloadConnection()
-}, 500)
+
+startLiveReload()
 </script>
 
  %>
