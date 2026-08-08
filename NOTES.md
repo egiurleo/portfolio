@@ -13,11 +13,8 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
    Fixed by adding `cname: emilysamp.dev` to the deploy workflow. See log below.
 3. [x] **Content refresh** — reviewed copy on home/blog/talks/projects/podcasts.
    Done, see log below.
-4. [ ] **Pagination** — `paginate` config and a `_pagination.erb` partial already
-   exist and are wired into blog/talks/projects/podcasts pages. Confirmed the
-   build actually runs pagination ("Pagination: Complete, processed 30 pagination
-   page(s)"). Still need to check what `per_page` is actually set to and whether
-   it's a sane number given how few items each collection has right now.
+4. [x] **Pagination** — confirmed `per_page` is unset, so it uses Bridgetown's
+   default of 10. Done, see log below.
 5. [ ] **Visual refresh** — current design is a single `frontend/styles/index.css`
    (~160 lines) with a custom color palette and a background image. Modernize
    without losing the personal identity.
@@ -130,3 +127,10 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
     script are both gone from every page's output. Confirmed dev mode
     (`bin/bridgetown build` / `start` with no env set) still correctly
     includes live-reload for local development.
+- 2026-08-08: Closed out the pagination item: `per_page` is unset in
+  `bridgetown.config.yml`, so it uses `bridgetown-paginate`'s default of 10.
+  Current collection sizes (blog: 3, talks: 8, podcasts: 7, projects: 5) are
+  all under that, so `_pagination.erb`'s Previous/Next controls stay hidden
+  today (`paginator.total_pages > 1` is false) but will correctly kick in
+  once any collection grows past 10 items. Confirmed with Emily that 10 is a
+  fine default — no config change needed.
