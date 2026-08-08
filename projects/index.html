@@ -9,63 +9,8 @@
 
 <link rel="stylesheet" href="/_bridgetown/static/index.OFYTTWE5.css" />
 <script src="/_bridgetown/static/index.NAODM6LX.js" defer></script>
-<script type="module">let lastmod = 0
-let reconnectAttempts = 0
-function startLiveReload() {
-  const connection = new EventSource("/_bridgetown/live_reload")
 
-  connection.addEventListener("message", event => {
-    reconnectAttempts = 0
-    if (document.querySelector("#bridgetown-build-error")) document.querySelector("#bridgetown-build-error").close()
-    if (event.data == "reloaded!") {
-      location.reload()
-    } else {
-      const newmod = Number(event.data)
-      if (lastmod > 0 && newmod > 0 && lastmod < newmod) {
-        location.reload()
-      } else {
-        lastmod = newmod
-      }
-    }
-  })
 
-  connection.addEventListener("builderror", event => {
-    let dialog = document.querySelector("#bridgetown-build-error")
-    if (!dialog) {
-      dialog = document.createElement("dialog")
-      dialog.id = "bridgetown-build-error"
-      dialog.style.borderColor = "red"
-      dialog.style.fontSize = "110%"
-      dialog.innerHTML = `
-        <p style="color:red">There was an error when building the site:</p>
-        <output><pre></pre></output>
-        <p><small>Check your Bridgetown logs for further details.</small></p>
-      `
-      document.body.appendChild(dialog)
-      dialog.showModal()
-    }
-    dialog.querySelector("pre").textContent = JSON.parse(event.data)
-  })
-
-  connection.addEventListener("error", () => {
-    if (connection.readyState === 2) {
-      // reconnect with new object
-      connection.close()
-      reconnectAttempts++
-      if (reconnectAttempts < 25) {
-        console.warn("Live reload: attempting to reconnect in 3 seconds...")
-        setTimeout(() => startLiveReload(), 3000)
-      } else {
-        console.error("Too many live reload connections failed. Refresh the page to try again.")
-      }
-    }
-  })
-}
-
-startLiveReload()
-</script>
-
- %>
 
 <base target="_blank" rel="noopener noreferrer">
 
