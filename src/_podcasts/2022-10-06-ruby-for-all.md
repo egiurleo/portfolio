@@ -5,5 +5,5 @@ title: How to Get Feedback
 url: https://www.rubyforall.com/episodes/how-to-get-feedback-with-emily-samp
 date: 2022-10-06
 summary: |
-  Andrew and Julie are joined by Emily Samp, senior developer at Shopify, who shares her insight into how to get better feedback. Managers, this one is for you too!
+  I joined Andrew and Julie to talk about how to get better feedback, whether you're giving it or receiving it. This one's especially useful for managers.
 ---
