@@ -10,6 +10,7 @@ task default: :deploy
 #
 desc "Build the Bridgetown site for deployment"
 task :deploy => [:clean, "frontend:build"] do
+  ENV["BRIDGETOWN_ENV"] = "production"
   Bridgetown::Commands::Build.start
 end
 

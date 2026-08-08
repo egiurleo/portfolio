@@ -104,3 +104,29 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
   - Verified: `bin/bridgetown build` is clean (no warnings), and `/`, `/talks`,
     `/projects` all return 200 from the dev server with the updated copy
     rendering correctly.
+  - Added a Squeezr project entry (iOS pelvic floor exercise app, launched
+    May 2026), and added first-person summaries to all 7 podcast entries
+    (pulled from each episode's show notes, then rewritten in Emily's voice).
+    Updated the WNB.rb title from "organizer" to "co-founder and CEO" on the
+    homepage and projects page, and removed Jemma Issroff's name from the
+    WNB.rb project blurb per Emily's request.
+  - Fixed uneven spacing on `/podcasts`: the page's `<h3>` had an inline
+    `style="margin-top: 1.25rem"` overriding the site-wide `main > h3 {
+    margin-top: 3rem }` used by every other listing page. Removed the
+    override so podcasts match talks/projects/blog spacing.
+  - Found and fixed a real production bug while investigating the spacing:
+    `_head.erb` had a broken ERB comment, `<%# <%= feed_meta %> %>` — ERB
+    comments close at the *first* `%>`, so `feed_meta` was rendered dead but
+    a stray ` %>` was printed as literal text on every page. Worse,
+    `Rakefile`'s `:deploy` task never set `BRIDGETOWN_ENV=production` before
+    building (unlike the `:test` task, which does set its own env), so
+    Bridgetown defaulted to `development` — meaning the *live* site has been
+    built in dev mode this whole time, shipping the dev live-reload script
+    (an `EventSource` connecting to a dev-only endpoint) to every visitor.
+    Fixed both: `_head.erb`'s comment is now a plain `<%# feed_meta %>`, and
+    `:deploy` now sets `ENV["BRIDGETOWN_ENV"] = "production"` before
+    building. Verified via `rake deploy` (the exact task CI runs): build
+    reports `Environment: production`, and the stray `%>` / live-reload
+    script are both gone from every page's output. Confirmed dev mode
+    (`bin/bridgetown build` / `start` with no env set) still correctly
+    includes live-reload for local development.
