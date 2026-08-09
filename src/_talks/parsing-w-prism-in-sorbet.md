@@ -1,6 +1,6 @@
 ---
 title: "Parsing with Prism in Sorbet"
-url: null
+url: https://www.youtube.com/watch?v=rnGMDz-2YVE
 slides: https://docs.google.com/presentation/d/1sw_V2_FfqTBfge46hBxLYxYcXKVy_LIp7CkqgphP9Ss/edit#slide=id.p
 summary: |
   Sorbet is a gradual type checker for Ruby, and like many Ruby developer tools, it has its own parser. This means that every time a change is made to the Ruby language, teams at Stripe and Shopify need to implement those changes in Sorbet’s parser. This process is labor-intensive, slow, and prone to errors. There must be a better way!
