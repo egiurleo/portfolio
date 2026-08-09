@@ -156,7 +156,8 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
     tip because the lines weren't actually tangent to the circle, fixed with
     real tangent-point geometry) with a gap between each petal and a
     three-dot French-knot center, no stem/leaf. Same SVG scaled up to a
-    512px navy-background PNG for `favicon.ico` (was a 16×16 PNG, now 32×32).
+    512px PNG for `favicon.ico` (was a 16×16 PNG, now 32×32; see 2026-08-08
+    fix below for the transparency correction).
   - Also fixed while in here: `--heading-color` in the old CSS was missing
     its `#` (silently broken, never actually applied); current-page nav
     highlighting added to `navbar.erb` (compares `resource.relative_url`
@@ -168,3 +169,17 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
   - Verified via `rake deploy` (the exact task CI runs) after every round:
     clean production build, no console/layout regressions, dev-mode
     live-reload still correct.
+- 2026-08-08: Two small post-merge fixes to the visual refresh:
+  - `favicon.ico` had no alpha channel — it was a solid navy square, which
+    read as a hard black tile in the browser tab rather than a floating
+    mark. Rebuilt with Pillow (chroma-keyed the navy out to real
+    transparency, checked edges on both light and dark backgrounds for
+    fringing before installing).
+  - The active-nav-item gold dot (`.rail nav a.current::before`) used a
+    hardcoded `top: 5px` that didn't line up with the text baseline. Fixed
+    with `top: 50%; transform: translateY(-50%)` so it centers regardless
+    of font metrics.
+  - Verified via `rake deploy`, pushed directly to `main` (no branch needed
+    for a two-line CSS/asset fix).
+
+All five plan items are now complete and merged to `main`.
