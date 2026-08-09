@@ -15,9 +15,9 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
    Done, see log below.
 4. [x] **Pagination** — confirmed `per_page` is unset, so it uses Bridgetown's
    default of 10. Done, see log below.
-5. [ ] **Visual refresh** — current design is a single `frontend/styles/index.css`
-   (~160 lines) with a custom color palette and a background image. Modernize
-   without losing the personal identity.
+5. [x] **Visual refresh** — replaced the boxed-card-on-floral-background layout
+   with a navy rail sidebar, serif headings, and an embroidery-inspired mark.
+   Done on branch `visual-refresh`, merged to `main`. See log below.
 
 ## Findings
 
@@ -134,3 +134,37 @@ Tracking notes for the site refresh. One issue at a time, each on its own commit
   today (`paginator.total_pages > 1` is false) but will correctly kick in
   once any collection grows past 10 items. Confirmed with Emily that 10 is a
   fine default — no config change needed.
+- 2026-08-08: Completed the visual refresh on branch `visual-refresh`, merged
+  to `main`. Explored two directions with Emily via mockups first (a light
+  refresh of the existing card-on-floral-background look vs. a fuller
+  rebuild); she picked the fuller rebuild, an "embroidery sampler" concept
+  leaning into her actual hobbies (embroidery, fantasy writing):
+  - Layout: navy `.rail` sidebar (site name, nav, social links) replacing the
+    old centered card + separate header/footer bands. Collapses to a stacked
+    block above the content on mobile instead of a horizontal bar, so nav and
+    social links both stay visible at any width (flexbox `column`/`row`
+    toggle at 860px, no JS).
+  - Type: added Cormorant Garamond (headings, rail wordmark) via Google
+    Fonts, paired with the existing Josefin Sans (demoted to small-caps nav
+    labels) and Source Sans Pro (body).
+  - A dashed "stitch" divider (inline SVG data-URI, repeat-x) replaces the
+    old `AmeliaNavy.jpg` tiled background under every page heading.
+  - Mark/favicon: iterated on ~10 rounds of SVG concepts with Emily (shown
+    via Artifact comps each round) before landing on a five-petal lazy-daisy
+    stitch mark — petals are true tangent-line loops (not simple arcs; an
+    early version had a visible seam where a straight taper met the round
+    tip because the lines weren't actually tangent to the circle, fixed with
+    real tangent-point geometry) with a gap between each petal and a
+    three-dot French-knot center, no stem/leaf. Same SVG scaled up to a
+    512px navy-background PNG for `favicon.ico` (was a 16×16 PNG, now 32×32).
+  - Also fixed while in here: `--heading-color` in the old CSS was missing
+    its `#` (silently broken, never actually applied); current-page nav
+    highlighting added to `navbar.erb` (compares `resource.relative_url`
+    against each nav path).
+  - Home page (`index.md`) copy rewritten several rounds with Emily: a large
+    serif "lede" line, then two body paragraphs (Shopify/Ruby Developer
+    Experience team, then WNB.rb) — she did a final copy pass herself
+    directly in the file before this was committed.
+  - Verified via `rake deploy` (the exact task CI runs) after every round:
+    clean production build, no console/layout regressions, dev-mode
+    live-reload still correct.
