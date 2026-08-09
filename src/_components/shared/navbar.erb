@@ -1,13 +1,45 @@
-<header>
-  <span class="title">Emily Samp</span>
+<%
+  nav_items = [
+    ["Home", "/"],
+    ["Blog", "/blog"],
+    ["Talks", "/talks"],
+    ["Podcasts", "/podcasts"],
+    ["Projects", "/projects"],
+  ]
+  current_path = @resource.relative_url.to_s.sub(/\/$/, "")
+  current_path = "/" if current_path.empty?
+%>
+<header class="rail">
+  <div class="rail-top">
+    <span class="mark" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
+        <g stroke="#e2828f" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M15 13.2 L12.874 8.082 A2.3 2.3 0 1 1 17.126 8.082 Z"/>
+          <path d="M15 13.2 L12.874 8.082 A2.3 2.3 0 1 1 17.126 8.082 Z" transform="rotate(72 15 15)"/>
+          <path d="M15 13.2 L12.874 8.082 A2.3 2.3 0 1 1 17.126 8.082 Z" transform="rotate(144 15 15)"/>
+          <path d="M15 13.2 L12.874 8.082 A2.3 2.3 0 1 1 17.126 8.082 Z" transform="rotate(216 15 15)"/>
+          <path d="M15 13.2 L12.874 8.082 A2.3 2.3 0 1 1 17.126 8.082 Z" transform="rotate(288 15 15)"/>
+        </g>
+        <g fill="#f3d9a4"><circle cx="14.4" cy="14.7" r="1"/><circle cx="15.6" cy="14.7" r="1"/><circle cx="15" cy="13.9" r="1"/></g>
+      </svg>
+    </span>
+    <span class="title"><%= @metadata.title %></span>
+  </div>
 
   <nav>
     <ul>
-      <li><a href="<%= relative_url '/' %>" target="_self">Home</a></li>
-      <li><a href="<%= relative_url '/blog' %>" target="_self">Blog</a></li>
-      <li><a href="<%= relative_url '/talks' %>" target="_self">Talks</a></li>
-      <li><a href="<%= relative_url '/podcasts' %>" target="_self">Podcasts</a></li>
-      <li><a href="<%= relative_url '/projects' %>" target="_self">Projects</a></li>
+      <% nav_items.each do |label, path| %>
+        <% href = path == "/" ? relative_url("/") : relative_url(path) %>
+        <li>
+          <a
+            href="<%= href %>"
+            target="_self"
+            class="<%= "current" if path == current_path %>"
+          ><%= label %></a>
+        </li>
+      <% end %>
     </ul>
   </nav>
+
+  <%= render "footer", metadata: @metadata %>
 </header>

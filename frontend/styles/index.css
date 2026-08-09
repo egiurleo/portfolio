@@ -1,161 +1,298 @@
 :root {
-  --body-background: #23314b;
-  --body-color: #23314b;
-  --heading-color: 23314b;
-  --action-color: #DF7785;
-  --header-color: #c35866;
-  --light-action-color: #f1c1c7;
-  --gray: rgb(161, 161, 161);
-  --yellow: #efb96e;
-  --light-yellow: #fdf2d7;
+  --ink: #1f2b42;
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --text: #22283a;
+  --muted: #6b7385;
+  --floss-red: #a8455a;
+  --floss-red-soft: #c96b7e;
+  --floss-gold: #c1893f;
+  --floss-gold-soft: #e0b876;
+  --rail-text: #c7cddb;
+  --rail-text-dim: #7c869e;
+  --note-bg: #fbeee0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ink);
 }
 
 body {
-  background: var(--body-color);
-  background-image: url("../../src/images/AmeliaNavy.jpg");
-  background-size: 85rem;
-  background-position-y: -5rem;
-  color: var(--body-color);
+  background: var(--paper);
+  color: var(--text);
   font-family: "Source Sans Pro", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     "Helvetica", "Arial", sans-serif;
-  margin: 0 8px;
+  margin: 0;
   font-size: 108%;
   line-height: 1.75;
-}
-
-@media (max-width: 500px) {
-  body {
-    background-size: 30rem;
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 a {
-  color: var(--action-color);
+  color: var(--floss-red);
   text-decoration: underline;
-  text-decoration-color: var(--yellow);
+  text-decoration-color: var(--floss-gold-soft);
 }
 
 a.disabled {
-  color: var(--gray);
+  color: var(--muted);
   pointer-events: none;
   text-decoration: none;
 }
 
-h1 {
-  font-family: "Josefin Sans", "sans-serif";
-  margin: 1rem 0 1rem;
-  font-weight: 900;
-  font-size: 2.5rem;
-  color: var(--heading-color);
-  line-height: 1.2;
-}
-
-body > header {
-  margin: 5rem auto 0 auto;
-  padding: 3rem 3rem 2rem 3rem;
-  text-align: center;
-  background: var(--header-color);
-  color: white;
-  text-transform: uppercase;
+h1, h2, h3 {
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   font-weight: 600;
-  font-size: 40px;
-  max-width: 50rem;
-  border-radius: 3px 3px 0 0;
+  color: var(--ink);
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
-body > header > nav ul {
-  margin: 1rem 0;
-  padding: 0;
-  list-style-type: none;
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  font-size: 1.3rem;
-  font-weight: bold;
-  flex-wrap: wrap;
-}
-
-body > header > nav a {
-  text-decoration: none;
-  color: var(--light-action-color);
-}
-
-body > header > nav a:hover {
-  color: white;
-}
-
-body > header .title {
-  font-family: "Josefin Sans", "sans-serif";
-}
-
-main {
-  margin: 0 auto;
-  max-width: 50rem;
-  padding: 3rem;
-  background: white;
-
-  @media (max-width: 500px) {
-    padding: 16px 16px 50px;
-  }
-}
-
-main p.subtitle {
-  color: var(--gray);
-  font-size: 14px;
-  margin: 0;
-  margin-top: -1rem;
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 2.75rem;
 }
 
 main > h3 {
   margin-top: 3rem;
+  font-size: 1.5rem;
 }
 
-footer {
-  text-align: center;
-  margin: 0 auto 4rem auto;
-  font-size: 1em;
-  background: var(--header-color);
-  border-radius: 0 0 3px 3px;
-  padding: 1rem 3rem;
-  max-width: 50rem;
-  color: white;
-  text-transform: uppercase;
+main > h3 a {
+  text-decoration-color: var(--floss-gold-soft);
+}
+
+main > p.lede {
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-size: 1.85rem;
   font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+  margin: 0 0 1.5rem;
+  text-wrap: balance;
 }
 
-footer > a {
-  color: var(--light-action-color);
+main > p.lede a {
+  text-decoration-color: var(--floss-gold-soft);
+}
+
+/* ============ Rail (site header + nav + footer) ============ */
+
+.rail {
+  background: var(--ink);
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex-shrink: 0;
+}
+
+.rail-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rail .mark {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.rail .title {
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--surface);
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
+.rail nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.1rem;
+}
+
+.rail nav a {
+  font-family: "Josefin Sans", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--rail-text);
+  text-decoration: none;
+  position: relative;
+}
+
+.rail nav a:hover {
+  color: var(--surface);
+}
+
+.rail nav a.current {
+  color: var(--floss-gold-soft);
+}
+
+.rail footer {
+  margin-top: 0;
+  text-align: left;
+  font-size: 0.78rem;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  max-width: none;
+  color: var(--rail-text-dim);
+  text-transform: none;
+  font-weight: 400;
+}
+
+.rail footer > a {
+  color: var(--rail-text-dim);
   text-decoration: none;
 }
 
-footer > a:hover {
-  color: white;
-  text-decoration: none;
+.rail footer > a:hover {
+  color: var(--rail-text);
 }
 
-hr {
-  border: none;
-  border-top: 2px dotted #bbb;
-  margin: 3rem 0;
+/* ============ Main content ============ */
+
+main {
+  flex: 1;
+  min-width: 0;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+  width: 100%;
+}
+
+main p.subtitle {
+  font-family: "Josefin Sans", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin: 0;
+  margin-top: -1.1rem;
+  margin-bottom: 0.75rem;
 }
 
 main > p.post-date {
+  font-family: "Josefin Sans", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  margin-top: -1rem;
   margin-bottom: 2rem;
-  color: var(--gray);
+  color: var(--muted);
 }
 
 main > p.note {
-  background: var(--light-yellow);
-  padding: 1rem;
+  background: var(--note-bg);
+  padding: 1rem 1.25rem;
   border-radius: 3px;
+  border-left: 3px solid var(--floss-gold);
 }
 
-main > .pagination {
-  margin-top: 2rem;
+.stitch {
+  height: 12px;
+  margin: 0.25rem 0 2rem;
+  background-repeat: repeat-x;
+  background-position: left center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12'%3E%3Cpath d='M2 9 L9 3' stroke='%23c1893f' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+  background-size: 16px 12px;
+  opacity: 0.7;
+}
+
+.pagination {
+  margin-top: 2.5rem;
   text-align: center;
+  font-family: "Josefin Sans", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
 }
 
 main pre.highlight {
   overflow-x: auto;
+}
+
+/* ============ Layout: stack on mobile, sidebar on desktop ============ */
+
+@media (min-width: 860px) {
+  body {
+    flex-direction: row;
+  }
+
+  .rail {
+    width: 230px;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    padding: 2.5rem 2rem;
+  }
+
+  .rail-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .rail .mark svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .rail .title {
+    font-size: 1.6rem;
+  }
+
+  .rail nav ul {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .rail nav a {
+    padding-left: 14px;
+  }
+
+  .rail nav a.current::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--floss-gold);
+  }
+
+  .rail footer {
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  main {
+    padding: 4.5rem 3.5rem 6rem;
+  }
+}
+
+@media (max-width: 500px) {
+  main {
+    padding: 2.25rem 1.25rem 3.5rem;
+  }
+
+  h1 {
+    font-size: 2.1rem;
+  }
 }
